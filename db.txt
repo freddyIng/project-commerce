@@ -1,3 +1,4 @@
+ /*This instrucctions will be used for generate the entity-relationship model with a software tool*/
  CREATE TABLE commerce(
    commerce_name varchar(50),
    descripcion_of_the_commerce varchar(100),
@@ -7,8 +8,7 @@
    state varchar(20),
    city varchar(20),
    direction varchar(50),
-   commerce_photo_path varchar(50),
-   
+   commerce_photo_path varchar(50)
  );
 
  CREATE TABLE stock(
@@ -27,10 +27,7 @@
    name varchar(40),
    last_name varchar(40),
    salary float,
-   work_days ,
-   working_hours int,
-   schedule json[], /*Json object that cotain days and the initial and final time
-   of working of every day in the object*/
+   schedule json[], /*Each json will include: The day (monday, tuesday, etc) and the range time (7:00-15:00, etc)*/
    pay_day int
  );
 
