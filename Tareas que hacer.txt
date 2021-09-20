@@ -1,0 +1,22 @@
+-Terminar la vista index. (casi terminada, falta hacerla responsiva)
+
+-Terminar la vista de la pagina de registro (falta añadir los estados y correspondientes municipios, y tambien hacerla 
+responsiva)
+
+-Terminar la funcionalidad de registro. Terminada. Falta aplicar la validacion y sanitizacion de datos tanto del 
+lado del cliente como en el servidor), y tambien, la modificacion del estado y ciudad (seran tipo select) en el formulario
+de datos. Obviamente tambien debo verificar que en el servidor el archivo enviado sea una imagen, de otra manera sera 
+aceptado (sea archivo de texto, doc, entre otros). Otra cosa: Tambien falta la verificacion por correo electronico. Usando 
+nodemailer y una cuenta de correo del negocio (como outlook?) podria enviar la verificacion. Como no espero un registro
+masivo de usuarios, entonces no necesitare pagar por el servicio que ofrece sendgrid, o peor, hacer mi propio servidor de 
+email. Por ultimo, el hash+salt de la contraseña (con bcrypt). Por supuesto, verificar que tanto el email como el nombre
+del comercio sean unicos.
+
+-Terminar la funcionalidad de inventario.
+
+-Empezar la funcionalidad de catalogo y carrito de compra para el cliente.
+
+-Empezar la funcionalidad de notificaciones de compras/pedidos al comercio.
+
+-Terminar la funcionalidad de inicio de sesion. Terminada. Falta la validacion y sanitizacion de datos, y bcrypt para generar y
+comparar el hash de la contraseña.

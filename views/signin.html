@@ -20,46 +20,46 @@
   </div>
 </nav>
 
-<form>
+<form action="/signin" method="post" enctype="multipart/form-data">
   <div class="mb-3">
     <label class="form-label">Introduce el nombre de tu negocio</label>
-    <input type="text" class="form-control">
+    <input type="text" class="form-control" name="commerceName" required>
   </div>
   <div class="mb-3">
     <label class="form-label">Introduza la descripcion de su negocio</label>
-    <input type="password" class="form-control" id="exampleInputPassword1">
+    <input class="form-control" name="descriptionOfTheCommerce" required>
   </div>
   <div class="mb-3">
     <label class="form-label">Introduzca el correo electronico del negocio</label>
-    <input type="email" class="form-control">
+    <input type="email" class="form-control" name="email" required>
   </div>
     <div class="mb-3">
     <label class="form-label">Introduzca el numero telefonico del negocio</label>
-    <input class="form-control">
+    <input class="form-control" name="phoneNumber" required>
   </div>
     <div class="mb-3">
     <label class="form-label">Introduzca una contraseña</label>
-    <input type="text" class="form-control">
+    <input type="password" class="form-control" name="password" required>
   </div>
     <div class="mb-3">
     <label class="form-label">Repita la contraseña</label>
-    <input type="text" class="form-control">
+    <input type="password" class="form-control" required>
   </div>
     <div class="mb-3">
     <label class="form-label">Estado donde se encuentra su negocio</label>
-    <input type="text" class="form-control">
+    <input type="text" class="form-control" name="state">
   </div>
-    <div class="mb-3">
+  <div class="mb-3">
     <label class="form-label">Ciudad o municipio en el que se encuentra su negocio</label>
-    <input type="text" class="form-control">
+    <input type="text" class="form-control" name="city">
   </div>
   <div class="mb-3">
     <label class="form-label">Direccion del negocio</label>
-    <input type="text" class="form-control">
+    <input type="text" class="form-control" name="direction" requried>
   </div>
   <div class="mb-3">
     <label class="form-label">Introduzca una foto de su negocio</label>
-    <input type="file" class="form-control">
+    <input type="file" class="form-control" name="commercePhoto" required>
   </div>
   <button type="submit" class="btn btn-success">Registrarse</button>
 </form>

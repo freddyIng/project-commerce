@@ -4,13 +4,7 @@
 	<title></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link href="/css/bootstrap.min.css" rel="stylesheet">
-	<link href="index.css" rel="stylesheet">
-  <style>
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-  </style>
+  <link href="index.css" rel="stylesheet">
 </head>
 <body>
 
@@ -29,7 +23,6 @@
 </nav>
 
     <div id="" class="modal-dialog modal-dialog-scrollable">
-    Hello
    </div>
 
    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -50,22 +43,36 @@
   </div>
 </div>
 
-  <p>¿Quieres que tu negocio tenga presencia en internet? Somos la solucion! Registrate y empieza a gestionar tu presencia virtual!</p>
-  <img src="wallpaper.jpg" alt="wallpaper">
+  <!--<img src="wallpaper.jpg" alt="wallpaper">-->
   <script src="/js/bootstrap.bundle.min.js"></script>
 
-<form>
+<div id="login">
+  <img src="wallpaper.jpg" alt="wallpaper">
+<form action="/login" method="POST">
+  <p>¿Quieres que tu negocio tenga presencia online?</p>
+  <p>Somos la solucion!</p>
   <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Correo electronico</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <input type="email" class="form-control" name="username">
   </div>
   <div class="mb-3">
     <label for="exampleInputPassword1" class="form-label">Contraseña</label>
-    <input type="password" class="form-control" id="exampleInputPassword1">
+    <input type="password" class="form-control" name="password">
   </div>
   <button type="submit" class="btn btn-success">Iniciar sesion</button>
   <a href="/signin">¿No tienes cuenta? Registrate!</a>
+
 </form>
-<p>Contacto</p> <p>Terminos y condiciones (Esto ira en una barra negra como la superior)</p>
+</div>
+
+<div id="lastInformation">
+  <a href="">Contacto</a> 
+  <a href="">Terminos y condiciones</a>
+  <a href="">Politica de cookies</a>
+  <a href="">Politica de privacidad</a>
+</div>
+
+
+
 </body>
 </html>

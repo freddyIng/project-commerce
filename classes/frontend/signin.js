@@ -1,4 +1,9 @@
 class signin{
+
+  validateData(){
+
+  }
+
   async sendData(data){
     let request=await fetch();
     let response=await request.json();
