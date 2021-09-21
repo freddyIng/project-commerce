@@ -26,10 +26,22 @@ router.get('/get-products', async (req, res)=>{
 });
 
 router.post('/add-product', upload.single('productPhoto'), async (req, res)=>{
-  console.log(req.file.mimetype);
   if (req.file.mimetype==='image/png' || req.file.mimetype==='image/jpeg'){
     try{
-      //Antes de agregar el producto a database, muevo imagen al subdirectorio correspondiente del comercio
+      //Antes de agregar el producto a database, muevo imagen al subdirectorio correspondiente del comercio. Si no existe, lo creo
+      try{
+        await fs.opendir(`commerce-photos/product-photos/${req.user}`);
+      } catch(err){
+        if (err.code==='ENOENT'){
+          await fs.mkdir(`commerce-photos/product-photos/${req.user}`);
+        }
+      }
+      try{
+        await fs.rename(`commerce-photos/product-photos/${req.file.filename}`, `commerce-photos/product-photos/${req.user}/${req.file.filename}`);
+      } catch(err){
+      	console.log(err);
+        console.error('No se ha podido mover la foto del producto a su subdirectorio correspondiente!');
+      }
       await stock.create({commerceName: req.user, productName: req.body.productName, classification: req.body.classification, 
       availableQuantity: req.body.amount, price: req.body.price, productPhotoPath: req.file.path});
       res.json({result: 'El producto ha sido añadido!'});
@@ -37,6 +49,12 @@ router.post('/add-product', upload.single('productPhoto'), async (req, res)=>{
       res.json({result: 'Ha ocurrido un error. Intentelo de nuevo!'});
     }
   } else{
+  	try{
+      await fs.unlink(`./commerce-photos/product-photos/${req.file.filename}`);
+  	} catch(err){
+      console.log(err);
+      console.error('No se ha podido eliminar el archivo!');
+  	}
     return res.json({result: 'Debes subir una foto/imagen (archivo png o jpg), no un tipo de archivo diferente.'});
   }
 });
