@@ -12,7 +12,9 @@ masivo de usuarios, entonces no necesitare pagar por el servicio que ofrece send
 email. Por ultimo, el hash+salt de la contraseña (con bcrypt). Por supuesto, verificar que tanto el email como el nombre
 del comercio sean unicos.
 
--Terminar la funcionalidad de inventario.
+-Terminar la funcionalidad de inventario. Falta la funcionalidad de actualizar productos, el mostrar las fotos de los productos
+y hacer que el formulario que se encarga de agregar los productos use fetch en vez de ser uno tradicional, para asi renderizar
+desde el cliente los cambios
 
 -Empezar la funcionalidad de catalogo y carrito de compra para el cliente.
 
@@ -20,3 +22,8 @@ del comercio sean unicos.
 
 -Terminar la funcionalidad de inicio de sesion. Terminada. Falta la validacion y sanitizacion de datos, y bcrypt para generar y
 comparar el hash de la contraseña.
+
+Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por ejemplo:
+Si un administrador agrega, actualiza o elimina un nuevo producto en su inventario, ese cambio se debe reflejar instantaneamente
+en la vista que un cliente tenga del catalogo de productos del comercio de ese administrador. Lo mismo cundo un cliente
+hace una compra/pedido, se confirma la compra, etc, y las respectivas notificaciones a la pagina del administrador.

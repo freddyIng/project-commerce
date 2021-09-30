@@ -20,9 +20,6 @@
 
 <h4>Modulo de inventario. Aqui podras añadir, ver, editar y eliminar productos del negocio</h4>
 
-<a href="/8h89fh2389hf9823bg23btui89dh2398thb923gbdff31fqx1e1r1rf231f/iniaeiofn897t78tq878f86qwf6t8/session/logout">Salir</a>
-<a href="/8h89fh2389hf9823bg23btui89dh2398thb923gbdff31fqx1e1r1rf231f/iniaeiofn897t78tq878f86qwf6t8/session/purchases">Pedidos</a>
-
 <script src="https://unpkg.com/vue@next"></script> <!--Using Vue-->
 
 <form method="POST" action="/admin/add-product" class="addProduct" enctype="multipart/form-data">
@@ -46,67 +43,76 @@
   <input type="file" name="productPhoto" required>
   <button type="submit" class="btn btn-success">Agregar Producto</button>
 </form>
-<div  id="catalogue">
-  <div class="container" v-html="products"></div>
+
+<div id="app"> 
+  <div class="container">
+    <products-list></products-list>
+  </div>
 </div>
 
-<!--<script src="catalogue.js"></script>-->
 <script>
-  let catalogue={
-    data() {
-      return {
-        products: ''
-      }
-    },
+  let app;
+  async function getProducts(){
+    let request=await fetch('/admin/get-products', {method: 'GET', headers: {'Content-Type': 'application/json'}});
+    let response=await request.json();
+    return {products: response.result};
+  }
 
-    async mounted(){
-      try{
-        let request=await fetch('/admin/get-products', {method: 'GET', headers: {'Content-Type': 'application/json'}});
-        let response=await request.json();
-        //El inventario se presentara en forma de grid. Cada fila tendra 3 productos.
-        const totalProducts=response.result.length;
-        const rowsAmount=Math.ceil(totalProducts/3);
-        if (rowsAmount===0){
-          alert('No tienes productos en tu inventario!');
-        } else{
-          this.products+='<div class="container">';
-          let productCounterPerRow=1, actualProductCounter=0;
-          for (let i=0; i<rowsAmount; i++){
-            this.products+='<div class="row">';
-            while (productCounterPerRow<=3 && actualProductCounter<totalProducts){
-              this.products+='<div class="col">';
-              this.products+=`<p>Nombre del producto: ${response.result[actualProductCounter].productName}</p> <p>Clasificacion: ${response.result[actualProductCounter].classification}</p> 
-                <p>Cantidad disponible: ${response.result[actualProductCounter].availableQuantity}</p> <p>Precio: ${response.result[actualProductCounter].price}</p> <img src"${response.result[actualProductCounter].productPhotoPath}" alt="foto del producto">`;
-              this.products+='</div>';
-              productCounterPerRow++;
-              actualProductCounter++;
+  function showProducts(data){
+    let app=Vue.createApp({
+    });
+    if (Object.entries(data.products).length===0){
+      alert('No tiene productos en su inventario!');
+    } else{
+      app.component('product', {
+
+        props: ['productName', 'classification', 'availableQuantity', 'price', 'productPhotoPath'],
+
+        emits: ['update', 'eliminar'],
+
+        methods: {
+
+          async update(){
+            /*I wonder ... if I should use a modal window that shows the component and its data in the update inputs, with the corresponding update or cancel buttons or just that these inputs and the buttons appear in the component without the need for modal windows*/
+          },
+
+          async remove(){ //remove because "delete" is  keyword of javascript and i can not use keywords of javascript in vue
+            let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.productName})});
+            let response=await request.json();
+            if (response.result==='El producto ha sido eliminado!'){
+              this.$root.$el.parentNode.removeChild(this.$root.$el)
+              alert('El producto ha sido eliminado');
+            } else{
+              alert('Ha ocurrido un error. Intentelo de nuevo');
             }
-            productCounterPerRow=1;
-            this.products+='</div>';
           }
-          this.products+='</div>';
-        }
-      } catch(err){
-        alert('Ha ocurrido un error al momento de recuperar los productos de tu inventario!');
-      }
+        },
+
+        template: `<li class="list-group-item"> <div><p>Product name: {{productName}}</p> <p>Classification: {{classification}}</p> 
+        <p>Available Quantity: {{availableQuantity}}</p> <p>Price: {{price}}</p> <img src="{{productPhotoPath}}" alt="product photo"> 
+        <button class="btn btn-primary" @click="update">Update</button> 
+        <button class="btn btn-danger" @click="remove">Delete</button></div></li>`
+      });
+      app.component('products-list', {
+        data(){
+          return {
+            products: data.products
+          }
+        },
+
+        template: `<ul class="list-group" v-for="product in products"> <product v-bind:productName="product.productName" 
+        v-bind:classification="product.classification" v-bind:availableQuantity="product.availableQuantity" 
+        v-bind:price="product.price" v-bind:productPhotoPath="product.productPhotoPath"/> </ul>`
+      });
     }
+    return app;
+  }
 
-  };
-  Vue.createApp(catalogue).mount('#catalogue');
-
-
-
-  /*let newCatalogue=new catalogue('products');
-  newCatalogue.getProducts();*/
+  (async function test(app){
+    let data=await getProducts();
+    app=showProducts(data);
+    app.mount('#app');
+  })(app);
 </script>
-  <!--<script src="/frontend/shopping-cart.js"></script>
-  <script src="/frontend/catalogue.js"></script>
-  <script>
-    let productView=new catalogue;
-    async function get(){ //Como la funcion "getProducts" es asincrona, tengo que usar await...
-      await productView.getProducts('products', true);
-    }
-    get();
-  </script>-->
 </body>
 </html>
