@@ -77,7 +77,8 @@ router.put('/update-product', async (req, res)=>{
   try{
     let products=await stock.update({}, {
       where:{
-
+        commerceName: req.user,
+        productName: req.body.productName
       }
     });
     res.json({result: products});

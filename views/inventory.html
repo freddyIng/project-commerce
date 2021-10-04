@@ -20,8 +20,6 @@
 
 <h4>Modulo de inventario. Aqui podras añadir, ver, editar y eliminar productos del negocio</h4>
 
-<script src="https://unpkg.com/vue@next"></script> <!--Using Vue-->
-
 <form method="POST" action="/admin/add-product" class="addProduct" enctype="multipart/form-data">
   <div class="mb-3">
     <label  class="form-label">Descripcion/Nombre del producto</label>
@@ -44,14 +42,14 @@
   <button type="submit" class="btn btn-success">Agregar Producto</button>
 </form>
 
-<div id="app"> 
-  <div class="container">
-    <products-list></products-list>
-  </div>
+<div id="root"> 
 </div>
 
-<script>
-  let app;
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<script type="text/babel">
   async function getProducts(){
     let request=await fetch('/admin/get-products', {method: 'GET', headers: {'Content-Type': 'application/json'}});
     let response=await request.json();
@@ -59,60 +57,139 @@
   }
 
   function showProducts(data){
-    let app=Vue.createApp({
-    });
     if (Object.entries(data.products).length===0){
       alert('No tiene productos en su inventario!');
     } else{
-      app.component('product', {
 
-        props: ['productName', 'classification', 'availableQuantity', 'price', 'productPhotoPath'],
-
-        emits: ['update', 'eliminar'],
-
-        methods: {
-
-          async update(){
-            /*I wonder ... if I should use a modal window that shows the component and its data in the update inputs, with the corresponding update or cancel buttons or just that these inputs and the buttons appear in the component without the need for modal windows*/
-          },
-
-          async remove(){ //remove because "delete" is  keyword of javascript and i can not use keywords of javascript in vue
-            let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.productName})});
-            let response=await request.json();
-            if (response.result==='El producto ha sido eliminado!'){
-              this.$root.$el.parentNode.removeChild(this.$root.$el)
-              alert('El producto ha sido eliminado');
-            } else{
-              alert('Ha ocurrido un error. Intentelo de nuevo');
-            }
-          }
-        },
-
-        template: `<li class="list-group-item"> <div><p>Product name: {{productName}}</p> <p>Classification: {{classification}}</p> 
-        <p>Available Quantity: {{availableQuantity}}</p> <p>Price: {{price}}</p> <img src="{{productPhotoPath}}" alt="product photo"> 
-        <button class="btn btn-primary" @click="update">Update</button> 
-        <button class="btn btn-danger" @click="remove">Delete</button></div></li>`
-      });
-      app.component('products-list', {
-        data(){
-          return {
-            products: data.products
-          }
-        },
-
-        template: `<ul class="list-group" v-for="product in products"> <product v-bind:productName="product.productName" 
-        v-bind:classification="product.classification" v-bind:availableQuantity="product.availableQuantity" 
-        v-bind:price="product.price" v-bind:productPhotoPath="product.productPhotoPath"/> </ul>`
-      });
     }
-    return app;
   }
 
-  (async function test(app){
+  (async function test(){
     let data=await getProducts();
-    app=showProducts(data);
-    app.mount('#app');
-  })(app);
+
+    /*So... When i update a item, the state (product name, for example) can change to someting like: <input type="text" {this.state.productName} /> from <p> Product name: {this.state.productName} </p> rigth? This is incredible... I love react*/
+
+    /*Well, 2 implementations come tome my mind for make this. The first is the less elegant, so, I will use the second.
+    I create two componentes (textConatainer and inputContainer) without states and without methods. Just two functions.
+    So, int the class item, for each property (name, classification, etc) i will create and aditional prop called "{prop name}conatiner"
+    . So, this aditional property will contain the actual state of the conatiner (html structure) of the prop. So, in the beggining,
+    this prop will be a text container (<p> {propertyName}: {value})</p>) and when the even update occurs, the prop will be a input container
+    (<p>New {propertyName} </p><input type="text" placeholder={value}>) and so on... 
+    Btw, I will use this approach for the buttons "update" and "delete". When a user press update, the update button will disspear.
+    Then, when the user press confirm update or cancel, this last 2 buttons will disspear and the update return...Well... 
+    Maybe the delete button will disspear and return with the update button at the same time, or maybe not, I will decide this later. In the case of delete, a window will advert to the user if he really want to delete the product. Yes or no, and so on... */
+
+    //I need just one button confirm update and cancel. And... I need resolve the binding between the input value and the state
+
+    function textContainer(propertyName, value){
+      return <p> {propertyName} : {value} </p>
+    }
+
+    function inputContainer(propertyName, value, confirmEvent, cancelEvent, valueBindStateEvent=null){ //I need resolve valuebindingState
+      return <div> 
+               <p>New {propertyName}</p>  
+               <input type="text" defaultValue={value} onChange={valueBindStateEvent}/>
+               <button type="button" className="btn btn-success" onClick={confirmEvent}>Confirmar actualizacion</button>
+               <button type="button" className="btn btn-danger" onClick={cancelEvent}>Cancelar</button>
+             </div>
+    }
+    
+    class Item extends React.Component {
+      constructor(props){
+        super(props)
+        this.state={
+          nameContainer: this.props.nameContainer,
+          name: this.props.name,
+          classificationContainer: this.props.classificationContainer,
+          classification: this.props.classification,
+          availableQuantityContainer: this.props.availableQuantityContainer,
+          availableQuantity: this.props.availableQuantity,
+          priceContainer: this.props.priceContainer,
+          price: this.props.price,
+          //The src of the img of the product will not cotain container...
+          src: this.props.src
+        }
+        this.update=this.update.bind(this)
+        this.delete=this.delete.bind(this)
+        this.confirmUpdate=this.confirmUpdate.bind(this)
+        this.cancelUpdate=this.cancelUpdate.bind(this)
+      }
+      
+      update(){
+        this.setState({
+          nameContainer: inputContainer('Nombre', this.state.name, this.confirmUpdate, this.cancelUpdate),
+          classificationContainer: inputContainer('Clasificacion', this.state.classification, this.confirmUpdate, this.cancelUpdate),
+          availableQuantityContainer: inputContainer('Cantidad disponible', this.state.availableQuantity, this.confirmUpdate, this.cancelUpdate),
+          priceContainer: inputContainer('Precio', this.state.price, this.confirmUpdate, this.cancelUpdate)
+        })
+      }
+
+      confirmUpdate(){
+        alert('a actualizar')
+      }
+
+      cancelUpdate(){
+        this.setState({
+          nameContainer: textContainer('Nombre', this.state.name),
+          classificationContainer: textContainer('Clasificacion', this.state.classification),
+          availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
+          priceContainer: textContainer('Precio', this.state.price)
+        })
+      }
+
+      async delete(){
+        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.name})});
+        let response=await request.json();
+        if (response.result==='El producto ha sido eliminado!'){
+          alert('El producto ha sido eliminado');
+          //How i delete the component in react... I will ask in reddit
+        } else{
+          alert('Ha ocurrido un error. Intentelo de nuevo');
+        }
+      }
+
+      render(){
+        return (
+          <li className="list-group-item"> <div>
+            {this.state.nameContainer} 
+            {this.state.classificationContainer} 
+            {this.state.availableQuantityContainer} 
+            {this.state.priceContainer}
+            <img src={this.state.src} alt="product photo"/> 
+            <button className="btn btn-primary" onClick={this.update}>Update</button> 
+            <button className="btn btn-danger" onClick={this.delete}>Delete</button>
+          </div> </li>
+        )
+      }
+    }
+
+    class List extends React.Component {
+      render(){
+        return (
+          <ul className="list-group">{this.props.products.map((product)=>{
+           return <Item key={product.productName} 
+           nameContainer={textContainer('Nombre', product.productName)} 
+           name={product.productName} 
+           classificationContainer={textContainer('Clasificacion', product.classification)}
+           classification={product.classification}
+           availableQuantityContainer={textContainer('Cantidad disponible', product.availableQuantity)}
+           availableQuantity={product.availableQuantity}
+           priceContainer={textContainer('Precio', product.price)}
+           price={product.price}
+           src={product.src}/>
+          })}</ul>
+        )
+      }
+    }
+
+    const list=<List products={data.products}/>
+
+    ReactDOM.render(
+      list,
+      document.getElementById('root')
+    );
+  })();
 </script>
+
 </body>
 </html>
