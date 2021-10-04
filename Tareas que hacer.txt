@@ -12,9 +12,9 @@ masivo de usuarios, entonces no necesitare pagar por el servicio que ofrece send
 email. Por ultimo, el hash+salt de la contraseña (con bcrypt). Por supuesto, verificar que tanto el email como el nombre
 del comercio sean unicos.
 
--Terminar la funcionalidad de inventario. Falta la funcionalidad de actualizar productos, el mostrar las fotos de los productos
+-Terminar la funcionalidad de inventario. Falta mostrar las fotos de los productos
 y hacer que el formulario que se encarga de agregar los productos use fetch en vez de ser uno tradicional, para asi renderizar
-desde el cliente los cambios
+desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react.
 
 -Empezar la funcionalidad de catalogo y carrito de compra para el cliente.
 

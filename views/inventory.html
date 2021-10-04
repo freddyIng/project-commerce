@@ -56,14 +56,6 @@
     return {products: response.result};
   }
 
-  function showProducts(data){
-    if (Object.entries(data.products).length===0){
-      alert('No tiene productos en su inventario!');
-    } else{
-
-    }
-  }
-
   (async function test(){
     let data=await getProducts();
 
@@ -74,66 +66,120 @@
     So, int the class item, for each property (name, classification, etc) i will create and aditional prop called "{prop name}conatiner"
     . So, this aditional property will contain the actual state of the conatiner (html structure) of the prop. So, in the beggining,
     this prop will be a text container (<p> {propertyName}: {value})</p>) and when the even update occurs, the prop will be a input container
-    (<p>New {propertyName} </p><input type="text" placeholder={value}>) and so on... 
+    (<p>{propertyName} </p><input type="text" defaulValue={value}>) and so on... 
     Btw, I will use this approach for the buttons "update" and "delete". When a user press update, the update button will disspear.
     Then, when the user press confirm update or cancel, this last 2 buttons will disspear and the update return...Well... 
-    Maybe the delete button will disspear and return with the update button at the same time, or maybe not, I will decide this later. In the case of delete, a window will advert to the user if he really want to delete the product. Yes or no, and so on... */
+    Maybe the delete button will disspear and return with the update button at the same time, or maybe not, I will decide this later. In the case of delete, a window will advert to the user if he really want to delete the product. Yes or no, and so on...
+    Also, I need resolve the binding between the input value and the state, so, when the input is update, the value sync with the state, so
+    when the user confirm the update, that value will be send to the server for update the data in the database...Btw, if the user
+    cancel the update, then the states will be return to the initial states*/
 
-    //I need just one button confirm update and cancel. And... I need resolve the binding between the input value and the state
+    //
 
     function textContainer(propertyName, value){
       return <p> {propertyName} : {value} </p>
     }
 
-    function inputContainer(propertyName, value, confirmEvent, cancelEvent, valueBindStateEvent=null){ //I need resolve valuebindingState
+    function inputContainer(propertyName, value, stateName, changeStateEvent){
       return <div> 
-               <p>New {propertyName}</p>  
-               <input type="text" defaultValue={value} onChange={valueBindStateEvent}/>
-               <button type="button" className="btn btn-success" onClick={confirmEvent}>Confirmar actualizacion</button>
-               <button type="button" className="btn btn-danger" onClick={cancelEvent}>Cancelar</button>
+               <p>{propertyName}</p>  
+               <input type="text" defaultValue={value} name={stateName} onChange={changeStateEvent}/>
              </div>
     }
     
     class Item extends React.Component {
       constructor(props){
         super(props)
+        this.update=this.update.bind(this)
+        this.delete=this.delete.bind(this)
+        this.handleInputChange=this.handleInputChange.bind(this)
+        this.confirmUpdate=this.confirmUpdate.bind(this)
+        this.cancelUpdate=this.cancelUpdate.bind(this)
+        /*The src of the img of the product will not cotain container. And the buttons state will change between "normal" to 
+        update (will be a jsx consist of pair of buttons, one pair for update and delete, and the other for confir or cancel the update*/
         this.state={
           nameContainer: this.props.nameContainer,
           name: this.props.name,
+          inputName: this.props.name,
           classificationContainer: this.props.classificationContainer,
           classification: this.props.classification,
+          inputClassification: this.props.classification,
           availableQuantityContainer: this.props.availableQuantityContainer,
           availableQuantity: this.props.availableQuantity,
+          inputAvailableQuantity: this.props.availableQuantity,
           priceContainer: this.props.priceContainer,
           price: this.props.price,
-          //The src of the img of the product will not cotain container...
-          src: this.props.src
+          inputPrice: this.props.price,
+          src: this.props.src,
+          buttonsState: <div>
+                          <button className="btn btn-primary" onClick={this.update}>Actualizar</button> 
+                          <button className="btn btn-danger" onClick={this.delete}>Eliminar</button>
+                        </div>
         }
-        this.update=this.update.bind(this)
-        this.delete=this.delete.bind(this)
-        this.confirmUpdate=this.confirmUpdate.bind(this)
-        this.cancelUpdate=this.cancelUpdate.bind(this)
       }
       
       update(){
         this.setState({
-          nameContainer: inputContainer('Nombre', this.state.name, this.confirmUpdate, this.cancelUpdate),
-          classificationContainer: inputContainer('Clasificacion', this.state.classification, this.confirmUpdate, this.cancelUpdate),
-          availableQuantityContainer: inputContainer('Cantidad disponible', this.state.availableQuantity, this.confirmUpdate, this.cancelUpdate),
-          priceContainer: inputContainer('Precio', this.state.price, this.confirmUpdate, this.cancelUpdate)
+          nameContainer: inputContainer('Nombre', this.state.name, 'inputName', this.handleInputChange),
+          classificationContainer: inputContainer('Clasificacion', this.state.classification, 'inputClassification', this.handleInputChange),
+          availableQuantityContainer: inputContainer('Cantidad disponible', this.state.availableQuantity, 'inputAvailableQuantity', this.handleInputChange),
+          priceContainer: inputContainer('Precio', this.state.price, 'inputPrice', this.handleInputChange),
+          buttonsState: <div> 
+                          <button type="button" className="btn btn-success" onClick={this.confirmUpdate}>Confirmar actualizacion</button>
+                          <button type="button" className="btn btn-danger" onClick={this.cancelUpdate}>Cancelar</button>
+                        </div>
         })
       }
 
-      confirmUpdate(){
-        alert('a actualizar')
+      async handleInputChange(event){ //Async because the setState function is asyncronous.
+        const stateName=event.target.name, newValue=event.target.value
+        await this.setState({
+          [stateName]: newValue
+        })
       }
 
-      cancelUpdate(){
-        this.setState({
+      async confirmUpdate(){
+        let request=await fetch('/admin/update-product', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.inputName, classification: this.state.inputClassification, availableQuantity:
+          this.state.inputAvailableQuantity, price: this.state.inputPrice})});
+        let response=await request.json();
+        if (response.result==='Operacion exitosa!'){
+          this.setState({
+            name: this.state.inputName,
+            classification: this.state.inputClassification,
+            availableQuantity: this.state.inputAvailableQuantity,
+            price: this.state.inputPrice
+          })
+          this.setState({
           nameContainer: textContainer('Nombre', this.state.name),
           classificationContainer: textContainer('Clasificacion', this.state.classification),
           availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
-          priceContainer: textContainer('Precio', this.state.price)
+          priceContainer: textContainer('Precio', this.state.price),
+          buttonsState: <div>
+                          <button className="btn btn-primary" onClick={this.update}>Actualizar</button> 
+                          <button className="btn btn-danger" onClick={this.delete}>Eliminar</button>
+                        </div>
+          })
+          alert('Se han actualizado los datos del producto con exito!');
+        } else{
+          alert('Ha ocurrido un error al actualizar los datos. Intentelo de nuevo. Si el problema persiste, comuniquese con nosotros');
+        }
+      }
+
+      cancelUpdate(){
+        //Apart from update the containers, I clean the values of the inputs, and return to the actual states 
+        this.setState({
+          nameContainer: textContainer('Nombre', this.state.name),
+          inputName: this.state.name,
+          classificationContainer: textContainer('Clasificacion', this.state.classification),
+          inputClassification: this.state.classification,
+          availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
+          inputAvailableQuantity: this.state.availableQuantity,
+          priceContainer: textContainer('Precio', this.state.price),
+          inputPrice: this.state.price,
+          buttonsState: <div>
+                          <button className="btn btn-primary" onClick={this.update}>Actualizar</button> 
+                          <button className="btn btn-danger" onClick={this.delete}>Eliminar</button>
+                        </div>
         })
       }
 
@@ -156,8 +202,7 @@
             {this.state.availableQuantityContainer} 
             {this.state.priceContainer}
             <img src={this.state.src} alt="product photo"/> 
-            <button className="btn btn-primary" onClick={this.update}>Update</button> 
-            <button className="btn btn-danger" onClick={this.delete}>Delete</button>
+            {this.state.buttonsState}
           </div> </li>
         )
       }

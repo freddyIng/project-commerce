@@ -74,14 +74,20 @@ router.delete('/delete-product', async (req, res)=>{
 });
 
 router.put('/update-product', async (req, res)=>{
+  //Btw, optional update photo. I need multer and fs (fs for delete the old photo)
   try{
-    let products=await stock.update({}, {
+    let products=await stock.update({
+        productName: req.body.productName,
+        classification: req.body.classification,
+        availableQuantity: req.body.availableQuantity,
+        price: req.body.price
+      }, {
       where:{
         commerceName: req.user,
         productName: req.body.productName
       }
     });
-    res.json({result: products});
+    res.json({result: 'Operacion exitosa!'});
   } catch(err){
     res.json({result: 'Ha ocurrido un error. Intentelo de nuevo!'});
   }
