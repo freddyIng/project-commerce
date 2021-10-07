@@ -16,6 +16,13 @@ del comercio sean unicos.
 y hacer que el formulario que se encarga de agregar los productos use fetch en vez de ser uno tradicional, para asi renderizar
 desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react.
 
+-Empezar a implementar el registro e inicio de sesion de clientes: Comprobe que es incomodo y poco optimo hacer la compra
+sin un registro formal de un cliente. Por ejemplo, si un cliente hace una transaccion, y se le va la electricidad, o el internet,
+o por alguna razon la computadora o equipo que uso no esta a su alcanze una vez hecha la compra (las cookies guardaran los datos
+de la transaccion del tiempo, pero solo sirven si el cliente accede al navegador en el mismo equipo), entonces no podra
+ver los datos de su transaccion. Obligarlo a que descargue un pdf con los datos de la transaccion es incomodo... Por eso necesito
+que se registre e inicie sesion, asi podra consultar sus transacciones en cualquier momento.
+
 -Empezar la funcionalidad de catalogo y carrito de compra para el cliente.
 
 -Empezar la funcionalidad de notificaciones de compras/pedidos al comercio.

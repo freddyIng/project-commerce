@@ -57,8 +57,6 @@
   }
 
   (async function test(){
-    let data=await getProducts();
-
     /*So... When i update a item, the state (product name, for example) can change to someting like: <input type="text" {this.state.productName} /> from <p> Product name: {this.state.productName} </p> rigth? This is incredible... I love react*/
 
     /*Well, 2 implementations come tome my mind for make this. The first is the less elegant, so, I will use the second.
@@ -73,8 +71,6 @@
     Also, I need resolve the binding between the input value and the state, so, when the input is update, the value sync with the state, so
     when the user confirm the update, that value will be send to the server for update the data in the database...Btw, if the user
     cancel the update, then the states will be return to the initial states*/
-
-    //
 
     function textContainer(propertyName, value){
       return <p> {propertyName} : {value} </p>
@@ -114,7 +110,8 @@
           buttonsState: <div>
                           <button className="btn btn-primary" onClick={this.update}>Actualizar</button> 
                           <button className="btn btn-danger" onClick={this.delete}>Eliminar</button>
-                        </div>
+                        </div>,
+          isDeleted: false //Initial value for conditional rendering
         }
       }
       
@@ -184,19 +181,18 @@
       }
 
       async delete(){
-        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.name})});
-        let response=await request.json();
+        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.name})})
+        let response=await request.json()
         if (response.result==='El producto ha sido eliminado!'){
-          alert('El producto ha sido eliminado');
-          //How i delete the component in react... I will ask in reddit
+          alert('El producto ha sido eliminado!')
+          this.setState({isDeleted: true})
         } else{
-          alert('Ha ocurrido un error. Intentelo de nuevo');
+          alert('Error. Try again!')
         }
       }
 
       render(){
-        return (
-          <li className="list-group-item"> <div>
+        let item=<li className="list-group-item"> <div>
             {this.state.nameContainer} 
             {this.state.classificationContainer} 
             {this.state.availableQuantityContainer} 
@@ -204,6 +200,8 @@
             <img src={this.state.src} alt="product photo"/> 
             {this.state.buttonsState}
           </div> </li>
+        return (
+          this.state.isDeleted? <div></div>: item
         )
       }
     }
@@ -227,6 +225,7 @@
       }
     }
 
+    let data=await getProducts();
     const list=<List products={data.products}/>
 
     ReactDOM.render(
