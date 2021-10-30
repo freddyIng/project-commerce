@@ -91,7 +91,8 @@ A modo de analogia, sera el “frontend” de una parte del sistema de gestion
  Nota: Estoy asumiendo que los clientes del comercio no podra registrarse e iniciar
  sesion en la aplicación. Pero, esto podria cambiar. Por ahora, el enfoque es que 
  los clientes del comercio no puedan registrarse. Pero eso podria cambiar en un 
- futuro.
+ futuro. Actualizacion: Ha cambiado el enfoque. Ahora los cientes deben registrarse 
+ en la aplicación.
 
  3-Sistema de busqueda: Este sistema es un plus, y seria el resultado de mi gran 
  ambicion: El google de las cosas. Esencialmente, permite a culquier usuario buscar 

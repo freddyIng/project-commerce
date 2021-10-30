@@ -1,9 +1,9 @@
-const dbConnector=require('./connection-pool.js');
+const connectionPoolPath=__dirname.replace('/classes/backend', '');
+const dbConnector=require(connectionPoolPath+'/connection-pool.js');
 const sequelize=dbConnector.getPool();
 const {DataTypes, Model}=require('sequelize');
 
-class Purchase extends Model {
-}:
+class Purchase extends Model {};
 Purchase.init({
   commerceName: {
     type: DataTypes.STRING
@@ -13,7 +13,7 @@ Purchase.init({
   },
   buyerData:{
     type: DataTypes.JSON
-  }
+  },
   referenceTransactionNumber: {
     type: DataTypes.INTEGER
   },

@@ -2,7 +2,10 @@ const router=require('express').Router();
 const viewPath=__dirname.replace('/routes', '/views');
 const classPath=__dirname.replace('/routes', '/classes/backend/');
 const customer=require(classPath+'customer.js');
-const session=require('express-session');
+const commerce=require(classPath+'commerce.js');
+const purchase=require(classPath+'purchase.js');
+const stock=require(classPath+'stock.js');
+//const session=require('express-session');
 const passport=require('passport');
 const LocalStrategy=require('passport-local').Strategy;
 
@@ -52,24 +55,77 @@ passport.deserializeUser(async (id, done)=>{
   }
 });
 
-router.get('/get', (req, res)=>{
-  res.sendFile(`${viewPaths}/signin-customer.html`);
+//Post verb beacause is more secure (dont show the parameters of the user in the url).
+router.post('/login', passport.authenticate('local-login', { successRedirect: '/customer/home-client',
+                                   failureRedirect: '/' }));
+
+router.get('/logout', (req, res)=>{
+  req.logout();
+  res.redirect('/');
+});
+
+router.get('/signin', (req, res)=>{
+  res.sendFile(viewPath+'/customer/signin.html');
 });
 
 router.post('/signin', async (req, res)=>{
+  console.log(req.body);
   try{
     await customer.create({
       name: req.body.name, 
       lastName: req.body.lastName, 
-      dni: req.body.dni, 
+      dni: req.body.dni,
+      password: req.body.password, 
       email: req.body.email, 
       phoneNumber: req.body.phoneNumber
     });
+    res.send('The has registrado con exito! Ahora puedes iniciar sesion para empezar a usar nuestro servicio.');
   } catch(err){
-    res.json({result: 'Ha ocurrido un error. Intentelo de nuevo!'});
+    res.send('Ha ocurrido un error. Intentelo de nuevo!');
   }
 });
 
 
+router.get('/home-client', (req, res)=>{
+  res.sendFile(viewPath+'/home-client.html');
+});
+
+router.get('/home-client/shops-state-template', (req, res)=>{
+  res.sendFile(viewPath+'/shops-state.html');
+});
+
+router.get('/home-client/shops-state-template/data-shops', async (req, res)=>{
+  try{
+    let shops=await commerce.findAll({
+      where: {
+        state: req.query.state
+      }
+    });
+    res.json({result: shops});
+  } catch(err){
+    res.json({result: 'Ha ocurrido un error al obtener los comercios de este estado!'});
+  }
+});
+
+router.get('/catalogue', async (req, res)=>{
+  res.sendFile(viewPath+'/catalogue.html');
+});
+
+router.get('/catalogue/products', async (req, res)=>{
+  try{
+    let products=await stock.findAll({
+      where: {
+        commerceName: req.query.commerceName
+      }
+    });
+    res.json({result: products});
+  } catch(err){
+    res.json({result: 'Ha ocurrido un error al obtener los productos de este comercio'});
+  }
+});
+
+router.post('/catalogue/buy', async (req, res)=>{
+  
+});
 
 module.exports=router;

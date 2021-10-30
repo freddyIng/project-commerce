@@ -10,15 +10,203 @@
   <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
-    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#infoModal" type="button">¿Que es venecomercios?</button>
-    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#infoModal" type="button">¿Por que usar nuestro servicio?</button>
-    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#infoModal" type="button">¿Quien usa venecomercios?</button>
       <form class="d-flex">
         <input class="form-control me-2" type="search" placeholder="Nombre del comercio" aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Buscar</button>
       </form>
   </div>
 </nav>
+
+
+
+
+
+<button type="button" class="btn btn-success" id="shoppingCart" data-bs-toggle="modal" data-bs-target="#cart">Tu compra</button>
+
+<!-- Modal para el carrito de compras 
+<div class="modal fade" id="cart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="cartBody">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="buy" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#purchase">Comprar</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>-->
+
+<!-- Modal para la compra del usuario 
+<div class="modal fade" id="purchase" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="purchaseBody">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-bs-dismiss="modal" id="confirmPurchase">Confirmar compra</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>-->
+
+<div id="root"></div>
+
+<script src="/js/bootstrap.bundle.min.js"></script>
+
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<script type="text/babel">
+  let commerceName=window.location.search.replace('/customer/catalogue?commerceName=', '')
+  async function getProducts(shopName){
+    let request=await fetch(`/customer/catalogue/products?commerceName=${shopName}`, {method: 'GET', headers: {'Content-Type': 'application/json'}});
+    let response=await request.json();
+    return {products: response.result};
+  }
+
+  (async function test(){
+    
+    class Item extends React.Component {
+      constructor(props){
+        super(props)
+        this.addToCart=this.addToCart.bind(this)
+        //Por ahora no hay estados. Esto cambiara con el carrito de compra, websockets, compra definitiva, etc...
+        this.state={
+          
+        }
+      }
+
+      addToCart(){
+        //This will fire the event "addItem" of the shopping cart component
+      }
+
+      render(){
+        return(
+          <li className="list-group-item">
+            <p>Nombre: {this.props.name}</p>
+            <p>Clasificacion: {this.props.classification}</p>
+            <p>Cantidad disponible: {this.props.availableQuantity}</p>
+            <p>Precio: {this.props.price}</p>
+            <img src={this.prop.src} alt='Foto del producto'/>
+           <button type="button" class="btn btn-warning" onClick={this.addToCart}>Agregar al carrito</button>
+          </li>
+        )
+      }
+    }
+
+    class List extends React.Component {
+      render(){
+        return ([
+          <ul key={1} className="list-group">{this.props.products.map((product)=>{
+           return <Item key={product.productName} 
+           name={product.productName} 
+           classification={product.classification}
+           availableQuantity={product.availableQuantity}
+           price={product.price}
+           src={product.src}/>
+          })}</ul>,
+          <div key={2}>{this.props.shoppingCart}</div>
+        ])
+      }
+    }
+
+    class ShoppingCart extends React.Component {
+      constructor(props){
+        super(props)
+        this.addItem=this.addItem.bind(this)
+        this.state={
+          items: []
+        }
+      }
+
+      addItem(item){
+        //First, I check if the product exist in the cart. In the case that exist, the amount of that item up to +1
+        let i=0, flag=false, itemIndex=-1
+        while (i<this.state.items.length && !flag){
+          if (this.state.items[i].name===item.name){
+            flag=True
+            index=1
+          }
+          i++
+        }
+        if (!flag){
+          item.amount=1
+          this.setState({
+            items: this.state.items.push(item)
+          })
+        } else{
+          this.setState({
+            items: this.state.items[itemIndex].amount+=1
+          })
+        }
+      }
+
+      deleteItem(itemName){
+        
+      }
+
+      buy(){
+
+      }
+
+      render(){
+        return (
+          <div className="modal fade" id="cart" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal-dialog">
+            <div className="modal-content">
+            <div className="modal-header">
+            <h5 className="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div className="modal-body" id="cartBody">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th><th>Precio</th><th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.items.map(item=>{
+                  return <tr key={item.productName}>
+                           <td>{item.productName}</td><td>{item.price}</td><td>{item.availableQuantity}</td><td>{item.src}</td>
+                         </tr>
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-primary" id="buy" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#purchase">Comprar</button>
+            <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+          </div>
+          </div>
+          </div>
+        )
+      }
+    }
+
+    let data=await getProducts()
+    const cart=<ShoppingCart />
+    const list=<List products={data.products} shoppingCart={cart}/>
+    ReactDOM.render(
+      list,
+      document.getElementById('root')
+    )
+  })()
+</script>
 
 
 

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
+    <a href="/customer/shops-state-template">Busqueda</a>
+    <a href="">Tus transacciones</a>
+    <a href="/customer/account-settings">Configuracion de la cuenta</a>
+    <a href="/customer/logout">Salir</a>
+  </div>
+</nav>
+
+<div id="root"> 
+</div>
+
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<script type="text/babel">
+  const shopsState=location.search.replace('?state=', '')
+  function ShopsList(shops){
+    let result=shops.shops.map(shop=>{
+      return <a key={shop.commerceName} href={'/customer/catalogue?commerceName='+shop.commerceName}>
+               <div className="card" style={{width: 18+'rem'}}>
+                 <img src={shop.commercePhotoPath} className="card-img-top" alt="..."/>
+                 <div className="card-body">
+                   <h2 className="card-text">{shop.commerceName}</h2>
+                 </div>
+               </div>
+            </a>
+    })
+    return result
+  }
+  async function getShops(state){
+    let request=await fetch(`/customer/home-client/shops-state-template/data-shops?state=${state}`, {method: 'GET', headers: {'Content-Type': 'application/json'}})
+    let response=await request.json()
+    return response.result
+  }
+  (async function test(state){
+    let shops=await getShops(state)
+    const list=<ShopsList shops={shops}/>
+    ReactDOM.render(
+      list,
+      document.getElementById('root')
+    );
+  })(shopsState)
+</script>
+
+</body>
+</html>

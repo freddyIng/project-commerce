@@ -1,5 +1,6 @@
 //Customer of the commerces
-const dbConnector=require('./connection-pool.js');
+const connectionPoolPath=__dirname.replace('/classes/backend', '');
+const dbConnector=require(connectionPoolPath+'/connection-pool.js');
 const sequelize=dbConnector.getPool();
 const {DataTypes, Model}=require('sequelize');
 
@@ -14,12 +15,18 @@ Customer.init({
   dni: {
     type: DataTypes.INTEGER
   },
+  password: {
+    type: DataTypes.STRING
+  },
   email: {
     type: DataTypes.STRING
   },
   phoneNumber: {
     type: DataTypes.BIGINT
   }
-});
+}, {
+     sequelize,
+     modelName: 'Customer'}
+);
 
 module.exports=Customer;

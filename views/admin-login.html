@@ -1,31 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link href="/css/bootstrap.min.css" rel="stylesheet">
-  <link href="index.css" rel="stylesheet">
 </head>
 <body>
 
-
-  <nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
-      <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Nombre del comercio" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Buscar</button>
-      </form>
   </div>
 </nav>
 
-
-  <script src="/js/bootstrap.bundle.min.js"></script>
-
 <div id="login">
-  <img src="wallpaper.jpg" alt="wallpaper">
-  
-  <form action="/customer/login" method="POST">
+  <form action="/admin/login" method="POST">
     <div class="mb-3">
       <label for="exampleInputEmail1" class="form-label">Correo electronico</label>
       <input type="email" class="form-control" name="username">
@@ -35,13 +24,9 @@
       <input type="password" class="form-control" name="password">
     </div>
     <button type="submit" class="btn btn-success">Iniciar sesion</button>
-    <a href="/customer/signin">¿No tienes cuenta como cliente? Registrate!</a>
+    <a href="/admin/signin">¿No tienes cuenta? Registrate!</a>
   </form>
 </div>
-
-<script>
-  
-</script>
 
 </body>
 </html>

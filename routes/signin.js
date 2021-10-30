@@ -9,26 +9,33 @@ router.get('/', (req, res)=>{
   res.sendFile(`${viewPath}signin.html`);
 });
 
-router.post('/', upload.single('commercePhoto'), async (req, res)=>{
-  console.log(req.file.mimetype);
-  console.log(req.file.size);
-  console.log(req.file.filename);
-  console.log(req.file.path);
-  await commerce.sync();
-  //First I validate and sanitize the data before save the data in the database
+
+async function deleteFile(fileName){
   try{
-  	/*The photo path will be in the directory photos/commerce_photos/{commerceName}/{commercePhotoPath} where
-  	the commercePhotoPath will be the generated number or string of the multer module*/
-    let newCommerce=await commerce.create({commerceName: req.body.commerceName, descriptionOfTheCommerce: req.body.descriptionOfTheCommerce, email:
-      req.body.email, phoneNumber: req.body.phoneNumber, password: req.body.password, state: req.body.state, city: req.body.city,
-      direction: req.body.direction, commercePhotoPath: req.file.path});
-    //res.json({result: 'Operacion exitosa'})
-    console.log(newCommerce);
-    res.send('Operacion exitosa');
+    await fs.unlink(`./commerce-photos/${filename}`);
+    return 'Operacion exitosa!';
   } catch(err){
-    console.log(err);
-    res.send('Ha ocurrido un error. Intentelo de nuevo');
-    //res.json({result: 'Ha ocurrido un error. Intentelo de nuevo'});
+    return 'Error';
+  }
+}
+
+//First I validate and sanitize the data before save the data in the database
+router.post('/', upload.single('commercePhoto'), async (req, res)=>{
+  if (req.file.mimetype==='image/png' || req.file.mimetype==='image/jpeg'){
+    try{
+      /*The photo path will be in the directory photos/commerce_photos/{commerceName}/{commercePhotoPath} where
+      the commercePhotoPath will be the generated number or string of the multer module*/
+      let newCommerce=await commerce.create({commerceName: req.body.commerceName, descriptionOfTheCommerce: req.body.descriptionOfTheCommerce, email:
+        req.body.email, phoneNumber: req.body.phoneNumber, password: req.body.password, state: req.body.state, city: req.body.city,
+        direction: req.body.direction, commercePhotoPath: req.file.path});
+      res.send('Operacion exitosa');
+    } catch(err){
+      console.log(err);
+      console.log(await deleteFile(req.file.filename));
+    }
+  } else{
+    console.log(await deleteFile(req.file.filename));
+    return res.send('Debes subir una foto/imagen (archivo png o jpg), no un tipo de archivo diferente.');
   }
 });
 

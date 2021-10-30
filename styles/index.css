@@ -5,6 +5,7 @@ body{
 #login{
  display: flex;
  justify-content: space-around;
+ align-items: center;
 }
 
 img{
@@ -20,5 +21,4 @@ img{
   background: black;
   display: flex;
   justify-content: space-around;
-  align-items: flex-end;
 }
