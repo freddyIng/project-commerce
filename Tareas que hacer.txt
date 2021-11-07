@@ -15,16 +15,16 @@ del comercio sean unicos.
 y hacer que el formulario que se encarga de agregar los productos use fetch en vez de ser uno tradicional, para asi renderizar
 desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react.
 
--Empezar a implementar el registro e inicio de sesion de clientes: Comprobe que es incomodo y poco optimo hacer la compra
-sin un registro formal de un cliente. Por ejemplo, si un cliente hace una transaccion, y se le va la electricidad, o el internet,
-o por alguna razon la computadora o equipo que uso no esta a su alcanze una vez hecha la compra (las cookies guardaran los datos
-de la transaccion del tiempo, pero solo sirven si el cliente accede al navegador en el mismo equipo), entonces no podra
-ver los datos de su transaccion. Obligarlo a que descargue un pdf con los datos de la transaccion es incomodo... Por eso necesito
-que se registre e inicie sesion, asi podra consultar sus transacciones en cualquier momento.
-
--Empezar la funcionalidad de catalogo y carrito de compra para el cliente.
-
--Empezar la funcionalidad de notificaciones de compras/pedidos al comercio.
+-Terminar la funcionalidad de carrito de compra y compras del cliente. Una vez terminada, lo siguiente es hacer el sistema
+de notificaciones de compra del administrador. Podria usar esa misma vista para la vista de las transacciones hechas por el cliente.
+Update: Para finalizar, me falta agregar la informacion financiera/metodos de pago y datos de los comercios. El problema
+es que no se como implementar la entrada de datos en la interfaz. 
+En fin, una vez implementada la interfaz y la logica de entrada de los datos de informacion de pago, la clase
+metodos de pago del catalogo(plantilla html) se encargara de extraer por medio de una solicitud fetch 
+tales datos del respectivo comercio, y 
+mostrarlos en el purchase modal. Una vez hecho esto, lo siguiente sera la logica de la comunicacion de eventos entre los componentes
+shoppingCart y el purchase, para que asi, una vez se confirme la transaccion de parte del cliente, los datos de la compra
+puedan ir al servidor y recibir la respuesta que confirme si la transaccion fue exitosa o fallo.
 
 -Terminar la funcionalidad de inicio de sesion. Terminada. Falta la validacion y sanitizacion de datos, y bcrypt para generar y
 comparar el hash de la contraseña.

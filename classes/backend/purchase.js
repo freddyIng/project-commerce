@@ -8,14 +8,20 @@ Purchase.init({
   commerceName: {
     type: DataTypes.STRING
   },
+  customerDni: {
+    type: DataTypes.INTEGER
+  }
   items: {
     type: DataTypes.ARRAY(DataTypes.JSON)
   },
   buyerData:{
     type: DataTypes.JSON
   },
+  paymentMethod: {
+    type: DataTypes.STRING
+  },
   referenceTransactionNumber: {
-    type: DataTypes.INTEGER
+    type: DataTypes.BIGINT
   },
 }, {
   sequelize,

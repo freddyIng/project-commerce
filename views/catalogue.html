@@ -70,7 +70,34 @@
 <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
 <script type="text/babel">
-  let commerceName=window.location.search.replace('/customer/catalogue?commerceName=', '')
+  /*Creo la clase "informacion bancaria" que contendra la informacion respectiva a las cuentas bancarias y metodos de pago del comercio
+  que este viendo el usuario, para que al momento de pagar, el usuario pueda ver las distintas opciones*/
+  /*Por cierto, dejare este comentario para recordar al momento de empezar a trabajar de nuevo:
+  Lo que me falta hacer es sincronizar los eventos de agregar un item al carrito, el evento de compra del componente en forma de modal
+  purchase y mostrar la informacion financiera en ese mismo componente. */
+  const eventBus={
+    on(event, callback){
+      document.addEventListener(event, (e) => callback(e.detail));
+    },
+    dispatch(event, data){
+      document.dispatchEvent(new CustomEvent(event, { detail: data }));
+    }
+  }
+
+  class paymentInformation{
+    constructor(shopName){
+      this.shopName=shopName
+      this.data={}
+    }
+
+    async getData(){
+      let request=await fetch(`/customer/catalogue/payment-information?CommerceName=${this.shopName}`, {method: 'GET', headers: 
+        {'Content-Type': 'application/json'}})
+      let response=await request.json()
+      this.data=response
+    }
+  }
+  let commerceName=window.location.search.replace('?commerceName=', '')
   async function getProducts(shopName){
     let request=await fetch(`/customer/catalogue/products?commerceName=${shopName}`, {method: 'GET', headers: {'Content-Type': 'application/json'}});
     let response=await request.json();
@@ -90,7 +117,11 @@
       }
 
       addToCart(){
-        //This will fire the event "addItem" of the shopping cart component
+        //This will fire the event "addItem" of the shopping cart component. 
+        /*The propsobject is not extensible, so, I send a new object with the props of interest, not the this.props, because,
+        the property amount will be necessary in the shopping cart component*/
+        let itemData={name: this.props.name, price: this.props.price, src: this.props.src}
+        eventBus.dispatch('addItem', itemData)
       }
 
       render(){
@@ -100,8 +131,8 @@
             <p>Clasificacion: {this.props.classification}</p>
             <p>Cantidad disponible: {this.props.availableQuantity}</p>
             <p>Precio: {this.props.price}</p>
-            <img src={this.prop.src} alt='Foto del producto'/>
-           <button type="button" class="btn btn-warning" onClick={this.addToCart}>Agregar al carrito</button>
+            <img src={this.props.src} alt='Foto del producto'/>
+           <button type="button" className="btn btn-warning" onClick={this.addToCart}>Agregar al carrito</button>
           </li>
         )
       }
@@ -109,17 +140,16 @@
 
     class List extends React.Component {
       render(){
-        return ([
-          <ul key={1} className="list-group">{this.props.products.map((product)=>{
+        return (
+          <ul className="list-group">{this.props.products.map((product)=>{
            return <Item key={product.productName} 
            name={product.productName} 
            classification={product.classification}
            availableQuantity={product.availableQuantity}
            price={product.price}
            src={product.src}/>
-          })}</ul>,
-          <div key={2}>{this.props.shoppingCart}</div>
-        ])
+          })}</ul>
+        )
       }
     }
 
@@ -132,24 +162,37 @@
         }
       }
 
+      componentDidMount(){
+        eventBus.on('addItem', data =>{
+          this.addItem(data)
+        })
+        eventBus.on('sendPurchaseData', data=>{
+          let productsData=this.state.items
+          eventBus.dispatch('receiveProductsDataFromTheShoppingCart', productsData)
+        })
+      }
+
       addItem(item){
         //First, I check if the product exist in the cart. In the case that exist, the amount of that item up to +1
         let i=0, flag=false, itemIndex=-1
         while (i<this.state.items.length && !flag){
           if (this.state.items[i].name===item.name){
-            flag=True
-            index=1
+            flag=true
+            itemIndex=i
           }
           i++
         }
+        let newItemsValue=this.state.items
         if (!flag){
           item.amount=1
+          newItemsValue.push(item)
           this.setState({
-            items: this.state.items.push(item)
+            items: newItemsValue
           })
         } else{
+          newItemsValue[itemIndex].amount+=1
           this.setState({
-            items: this.state.items[itemIndex].amount+=1
+            items: newItemsValue
           })
         }
       }
@@ -158,17 +201,17 @@
         
       }
 
-      buy(){
-
+      buy(){ //Just show the purchase modal
+        
       }
 
       render(){
         return (
-          <div className="modal fade" id="cart" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal fade" id="cart" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div className="modal-dialog">
             <div className="modal-content">
             <div className="modal-header">
-            <h5 className="modal-title" id="exampleModalLabel">Modal title</h5>
+            <h5 className="modal-title" id="exampleModalLabel">Carrito de compra</h5>
             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div className="modal-body" id="cartBody">
@@ -180,15 +223,15 @@
               </thead>
               <tbody>
                 {this.state.items.map(item=>{
-                  return <tr key={item.productName}>
-                           <td>{item.productName}</td><td>{item.price}</td><td>{item.availableQuantity}</td><td>{item.src}</td>
+                  return <tr key={item.name}>
+                           <td>{item.name}</td><td>{item.price}</td><td>{item.amount}</td><td>{item.src}</td>
                          </tr>
                 })}
               </tbody>
             </table>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-primary" id="buy" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#purchase">Comprar</button>
+            <button type="button" className="btn btn-primary" id="buy" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#purchase" onClick={this.buy}>Comprar</button>
             <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
           </div>
           </div>
@@ -198,11 +241,80 @@
       }
     }
 
-    let data=await getProducts()
+    class Purchase extends React.Component{
+      constructor(props){
+        super(props)
+        this.confirm=this.confirm.bind(this)
+        this.transaction=this.transaction.bind(this)
+        this.state={
+          
+        }
+      }
+
+     /*-El evento confirmar del componente purchase, disparara el evento sendPurchaseData del componente shopping cart
+       -El evento sendPurchaseData activara el evento receiveProductsDataFromTheShoppingCart del componente purchase
+       -El evento receiveProductsDataFromTheShoppingCart activara el evento transaction del componente purchase
+       -Finalmente, el evento transaction sera una solicitud fetch para registrar una compra del cliente en la respectiva tienda*/
+
+      confirm(){
+        eventBus.dispatch('sendPurchaseData', null)
+      }
+
+      componentDidMount(){
+        eventBus.on('receiveProductsDataFromTheShoppingCart', data=>{
+          //First I obtain the total price (just multiply the price of each item with the amount, and sum, duhhh)
+          let totalPrice=0
+          data.forEach(item=>{
+            totalPrice+=parseInt(item.amount)*parseInt(item.price)
+          })
+          data.totalPrice=totalPrice
+          this.transaction(data)
+        })
+      }
+
+      async transaction(purchaseData){
+        let request=await fetch('/customer/catalogue/buy', {method: 'POST', })
+        let response=await request.json()
+        if (response.result==='Successful operation'){
+          //Delete all the items of the shopping cart, and show the message of succesfull purchase
+        } else{
+          //Show failed message...
+        } 
+      }
+
+      render(){
+        return (
+          <div className="modal fade" id="purchase" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div className="modal-dialog">
+    <div className="modal-content">
+      <div className="modal-header">
+        <h5 className="modal-title" id="exampleModalLabel" onClick={this.confirm}>Confirmar compra</h5>
+        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div className="modal-body" id="purchaseBody">
+      </div>
+      <div className="modal-footer">
+        <button type="button" className="btn btn-success" data-bs-dismiss="modal" id="confirmPurchase">Confirmar compra</button>
+        <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+        )
+      }
+    }
+    //Ok... I need pass as props the financial information of the commerce to the purchase component, just that...
+    let data=await getProducts(commerceName)
+    let paymentData=new paymentInformation(commerceName)
     const cart=<ShoppingCart />
-    const list=<List products={data.products} shoppingCart={cart}/>
+    const purchase=<Purchase />
+    const list=<List products={data.products} />
     ReactDOM.render(
-      list,
+      <div>
+        {list}
+        {cart}
+        {purchase}
+      </div>,
       document.getElementById('root')
     )
   })()

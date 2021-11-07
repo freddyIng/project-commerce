@@ -5,24 +5,20 @@ const customer=require(classPath+'customer.js');
 const commerce=require(classPath+'commerce.js');
 const purchase=require(classPath+'purchase.js');
 const stock=require(classPath+'stock.js');
-//const session=require('express-session');
+/*const session=require('express-session');
 const passport=require('passport');
 const LocalStrategy=require('passport-local').Strategy;
 
 
 passport.use('local-login', new LocalStrategy(async (username, password, done)=>{
   try{
-    /*Remember that bcrypt must be used for hash the password and compare with the hash password of database. Also, remember
-    the validation and sanitization of the username and password*/
     let theCustomer=await customer.findAll({
       where: {
         email: username,
         password: password
       }
     });
-    /*Que mierda javascript. Si variable=[], variable===[] es false... Por eso use length. findAll retorna [] si no encuentra nada.
-    Se supone que el findAll retorna un array de objetos, donde cada objeto es una fila de la tabla de la base de datos.*/
-    if (theCustomer.length===0){ //I am not sure if the user doesnt exist, this is null. I will check the sequelize documentation
+    if (theCustomer.length===0){
       return done(null, false, {message: 'Username or password incorrect'});
     }
     theCustomer=theCustomer[0];
@@ -57,7 +53,7 @@ passport.deserializeUser(async (id, done)=>{
 
 //Post verb beacause is more secure (dont show the parameters of the user in the url).
 router.post('/login', passport.authenticate('local-login', { successRedirect: '/customer/home-client',
-                                   failureRedirect: '/' }));
+                                   failureRedirect: '/' }));*/
 
 router.get('/logout', (req, res)=>{
   req.logout();
@@ -69,7 +65,6 @@ router.get('/signin', (req, res)=>{
 });
 
 router.post('/signin', async (req, res)=>{
-  console.log(req.body);
   try{
     await customer.create({
       name: req.body.name, 
@@ -124,8 +119,35 @@ router.get('/catalogue/products', async (req, res)=>{
   }
 });
 
+router.get('/catalogue/payment-information', async (req, res)=>{
+  try{
+    let data=await commerce.findAll({
+      attributes: ['paymentInformation'],
+      where: {
+        commerceName: req.query.commerceName
+      }
+    })
+    res.json({result: data});
+  } catch(err){
+    res.json({result: 'Ha ocurrido un error al obtener los productos de este comercio'});
+  }
+});
+
 router.post('/catalogue/buy', async (req, res)=>{
-  
+  //Remeber that the purchase table. It belongs to both the business and the customer. Both can consult it when viewing their transactions.
+  try{
+    await purchase.create({
+      commerceName: req.body.commerceName,
+      customerDni: req.user, 
+      items: req.body.items, 
+      buyerData: req.body.buyerData,
+      paymentMethod: req.body.paymentMethod,
+      referenceTransactionNumber: req.body.referenceTransactionNumber
+    });
+    res.json({result: 'Successful operation'});
+  } catch(err){
+    res.json({result: 'Failed operation'});
+  }
 });
 
 module.exports=router;

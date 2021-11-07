@@ -11,7 +11,7 @@ Commerce.init({
   descriptionOfTheCommerce: {
     type: DataTypes.STRING
   },
-  email:{
+  email: {
     type: DataTypes.STRING
   },
   phoneNumber: {
@@ -31,6 +31,9 @@ Commerce.init({
   },
   commercePhotoPath: {
     type: DataTypes.STRING
+  },
+  paymentInformation: {  //This will be information like data of bank accounts or other payment methods
+    type: DataTypes.ARRAY(DataTypes.JSON)
   }
 }, {
   sequelize,
