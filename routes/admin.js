@@ -98,6 +98,23 @@ router.post('/signin', async (req, res)=>{
   }
 });
 
+router.get('/edit-payment-information', (req, res)=>{
+  res.sendFile(viewPath+'/edit-payment-information.html');
+});
+
+router.put('/edit-payment-information', async (req, res)=>{
+  try{
+    await commerce.update({paymentInformation: req.body}, {
+      where: {
+        commerceName: req.user
+      }
+    });
+    res.json({result: 'Sucessfull operation'});
+  } catch(err){
+    res.json({result: 'Failed operation'});
+  }
+});
+
 router.get('/inventory', (req, res)=>{
   res.sendFile(viewPath+'/inventory.html');
 });

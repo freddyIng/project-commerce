@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+  <nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
+      <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Nombre del comercio" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Buscar</button>
+      </form>
+  </div>
+</nav>
+
+<!--Como sera la vista de la edicion de metodos de pago?-->
+<h3>Bancos</h3>
+<p>Inserta numero de cuenta si tienes cuenta en el banco de tu eleccion</p>
+<div id="banks">
+  <label>Banco de Venezuela</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco Mercantil</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco BBVA Provincial</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco Banesco</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco BOD</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco Bicentenario</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco Bancaribe</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco del Tesoro</label>
+  <input type="text" class="form-control" name="">
+  <label>Banca Amiga</label>
+  <input type="text" class="form-control" name="">
+  <label>Banco Activo</label>
+  <input type="text" class="form-control" name="">
+</div>
+
+<h3>Dolares electronicos</h3>
+<p>Introduce tu email, numero telefonico o identificador equivalente de metodos de pago de tu eleccion</p>
+<div id="other">
+<label>Zelle</label>
+<input type="text" class="form-control" name="">
+<label>Airtm</label>
+<input type="text" class="form-control" name="">
+<label>Reserve</label>
+<input type="text" class="form-control" name="">
+<label>Paypal</label>
+<input type="text" class="form-control" name="">
+</div>
+
+<p>Inserta tu direccion de billetera en las criptomonedas de tu interes</p>
+<h3>Criptomonedas</h3>
+<div id="cryptos">
+<label>Bitcoin</label>
+<input type="text" class="form-control" name="">
+<label>Ethereum</label>
+<input type="text" class="form-control" name="">
+<label>Tether</label>
+<input type="text" class="form-control" name="">
+<label>Litecoin</label>
+<input type="text" class="form-control" name="">
+<label>Dash</label>
+<input type="text" class="form-control" name="">
+<label>XRP</label>
+<input type="text" class="form-control" name="">
+<label>EOS</label>
+<input type="text" class="form-control" name="">
+<label>Dodgecoin</label>
+<input type="text" class="form-control" name="">
+</div>
+
+<button type="button" class="btn btn-primary" id="update">
+
+<script type="text/javascript">
+  function getData(idFatherNode, initialValue){ //Initial value, because the number of child can be par or impar
+    let fatherNode=document.getElementById(idFatherNode).children, data=[];
+    for (let i=initialValue? 1 : 2; i<fatherNode.length; i+=2){
+      data.push({
+        name: fatherNode[i-1].textContent,
+        referenceNumber: fatherNode[i].value
+      })
+    }
+    return data;
+  }
+
+  function joinArrays(arrayOfArrays){
+    let result=[];
+    for (let i=0; i<arrayOfArrays.length; i++){
+      for (let j=0; j<arrayOfArrays[i].length; j++){
+        result.push(arrayOfArrays[i][j]);
+      }
+    }
+    return result;
+  }
+  let update=document.getElementById('update');
+  update.addEventListener('click', async ()=>{
+  	let banks=getData('banks', true);
+  	let otherMethods=getData('other', true);
+  	let cryptos=getData('cryptos', true);    
+  	let paymentMethodsData=joinArrays([banks, otherMethods, cryptos]);
+    paymentMethodsData=JSON.stringify(paymentMethodsData);
+  	let request=await fetch('/admin/edit-payment-information', {method: 'PUT', headers: { 'Content-Type': 'application/json'}, body: paymentMethodsData});
+  	let response=await request.json();
+    if (response.result==='Sucessfull operation'){
+      alert('Se han actualizado los datos con exito!');
+    } else{
+      alert('Ha ocurrido un error. Intentelo de nuevo');
+    }
+  });
+</script>
+</body>
+</html>

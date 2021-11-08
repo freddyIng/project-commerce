@@ -127,9 +127,9 @@ router.get('/catalogue/payment-information', async (req, res)=>{
         commerceName: req.query.commerceName
       }
     })
-    res.json({result: data});
+    res.json({message: 'Sucessfull operation', result: data});
   } catch(err){
-    res.json({result: 'Ha ocurrido un error al obtener los productos de este comercio'});
+    res.json({message: 'Failed operation'});
   }
 });
 

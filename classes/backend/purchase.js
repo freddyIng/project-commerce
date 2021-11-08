@@ -10,7 +10,7 @@ Purchase.init({
   },
   customerDni: {
     type: DataTypes.INTEGER
-  }
+  },
   items: {
     type: DataTypes.ARRAY(DataTypes.JSON)
   },

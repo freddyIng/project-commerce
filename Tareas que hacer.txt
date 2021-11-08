@@ -26,6 +26,11 @@ mostrarlos en el purchase modal. Una vez hecho esto, lo siguiente sera la logica
 shoppingCart y el purchase, para que asi, una vez se confirme la transaccion de parte del cliente, los datos de la compra
 puedan ir al servidor y recibir la respuesta que confirme si la transaccion fue exitosa o fallo.
 
+UPDATE 2: Hice una implementacion basica de la interfaz de entrada de informacion financiera. Y tambien logre expresar esa informa-
+-cion en el modal purchase. Ahora solo falta completar la logica de confirmacion de compra. Solo tengo que enviar la informacion
+de compra (productos, cantidades, precios), el metodo de pago que elija el usuario y el respectivo numero de trnasaccion del,
+para poder guardar esos datos en la base de datos. Ya casi termino, solo falta terminar esa logica, tendre que hacerla mañana.
+
 -Terminar la funcionalidad de inicio de sesion. Terminada. Falta la validacion y sanitizacion de datos, y bcrypt para generar y
 comparar el hash de la contraseña.
 

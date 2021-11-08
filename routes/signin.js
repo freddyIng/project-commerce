@@ -23,6 +23,7 @@ async function deleteFile(fileName){
 router.post('/', upload.single('commercePhoto'), async (req, res)=>{
   if (req.file.mimetype==='image/png' || req.file.mimetype==='image/jpeg'){
     try{
+      await commerce.sync();
       /*The photo path will be in the directory photos/commerce_photos/{commerceName}/{commercePhotoPath} where
       the commercePhotoPath will be the generated number or string of the multer module*/
       let newCommerce=await commerce.create({commerceName: req.body.commerceName, descriptionOfTheCommerce: req.body.descriptionOfTheCommerce, email:

@@ -87,14 +87,24 @@
   class paymentInformation{
     constructor(shopName){
       this.shopName=shopName
-      this.data={}
+      this.data=[]
     }
 
     async getData(){
-      let request=await fetch(`/customer/catalogue/payment-information?CommerceName=${this.shopName}`, {method: 'GET', headers: 
+      let request=await fetch(`/customer/catalogue/payment-information?commerceName=${this.shopName}`, {method: 'GET', headers: 
         {'Content-Type': 'application/json'}})
       let response=await request.json()
-      this.data=response
+      if (response.message==='Sucessfull operation'){
+        /*Because not necessary some commerce use all the payment methods, I will filter what methods are use knowing the value
+        of the referenceNumber. If is '', then is not used*/
+        let paymentMethodsData=response.result[0].paymentInformation //This is not a string... is a object, so, JSON.parse is innecesary
+        paymentMethodsData.forEach(method=>{
+          if (method.referenceNumber!==''){
+            this.data.push(method)
+          } 
+        })
+      }
+      return this.data
     }
   }
   let commerceName=window.location.search.replace('?commerceName=', '')
@@ -246,9 +256,24 @@
         super(props)
         this.confirm=this.confirm.bind(this)
         this.transaction=this.transaction.bind(this)
+        this.changeMethodName=this.changeMethodName.bind(this)
+        this.changeReferenceNumer=this.changeReferenceNumber.bind(this)
         this.state={
-          
+          methodName: '',
+          referenceNumber: ''
         }
+      }
+  
+      changeMethodName(event){
+        this.setState({
+          methodName: event.target.value
+        })
+      }
+
+      changeReferenceNumber(event){
+        this.setState({
+          referenceNumber: event.target.value
+        })
       }
 
      /*-El evento confirmar del componente purchase, disparara el evento sendPurchaseData del componente shopping cart
@@ -273,6 +298,9 @@
       }
 
       async transaction(purchaseData){
+        console.log(purchaseData)
+        console.log(this.state.methodName)
+        console.log(this.state.referenceNumber)
         let request=await fetch('/customer/catalogue/buy', {method: 'POST', })
         let response=await request.json()
         if (response.result==='Successful operation'){
@@ -292,6 +320,21 @@
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div className="modal-body" id="purchaseBody">
+      	<p>Estos son los metodos de pago y los datos usados por la tienda. Haz la respectiva transaccion con alguno de estos metodos
+      	y luego confirma la transaccion</p>
+        {this.props.paymentMethods.map(method=>{
+          return <p key={method.name}>
+          	       {method.name+' : '+method.referenceNumber}
+          	     </p>
+        })}
+        <p>Selecciona tu metodo de pago</p>
+        <select className="form-control" id="exampleFormControlSelect1" value={this.state.methodName} onChange={this.changeMethodName}>
+            {this.props.paymentMethods.map(method=>{
+              return <option className="form-control" key={method.name}>{method.name}</option>
+            })}
+        </select>
+        <p>Introduce el numero de referencia de tu transaccion</p>
+        <input type="text" name="referenceNumberClient" value={this.state.referenceNumber} onChange={this.changeReferenceNumber}/>
       </div>
       <div className="modal-footer">
         <button type="button" className="btn btn-success" data-bs-dismiss="modal" id="confirmPurchase">Confirmar compra</button>
@@ -307,7 +350,7 @@
     let data=await getProducts(commerceName)
     let paymentData=new paymentInformation(commerceName)
     const cart=<ShoppingCart />
-    const purchase=<Purchase />
+    const purchase=<Purchase paymentMethods={await paymentData.getData()}/>
     const list=<List products={data.products} />
     ReactDOM.render(
       <div>

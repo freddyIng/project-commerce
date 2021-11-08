@@ -32,8 +32,8 @@ Commerce.init({
   commercePhotoPath: {
     type: DataTypes.STRING
   },
-  paymentInformation: {  //This will be information like data of bank accounts or other payment methods
-    type: DataTypes.ARRAY(DataTypes.JSON)
+  paymentInformation: {
+    type: DataTypes.ARRAY(DataTypes.JSONB)
   }
 }, {
   sequelize,
