@@ -8,6 +8,13 @@
 </head>
 <body>
 
+<style>
+  img{
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+
 <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
@@ -220,7 +227,7 @@
            availableQuantity={product.availableQuantity}
            priceContainer={textContainer('Precio', product.price)}
            price={product.price}
-           src={product.src}/>
+           src={product.productPhotoPath}/>
           })}</ul>
         )
       }

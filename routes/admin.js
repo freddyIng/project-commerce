@@ -153,10 +153,9 @@ router.post('/add-product', upload.single('productPhoto'), async (req, res)=>{
         await fs.rename(`commerce-photos/product-photos/${req.file.filename}`, `commerce-photos/product-photos/${req.user}/${req.file.filename}`);
       } catch(err){
       	console.log(err);
-        console.error('No se ha podido mover la foto del producto a su subdirectorio correspondiente!');
       }
       await stock.create({commerceName: req.user, productName: req.body.productName, classification: req.body.classification, 
-      availableQuantity: req.body.amount, price: req.body.price, productPhotoPath: req.file.path});
+      availableQuantity: req.body.amount, price: req.body.price, productPhotoPath: `/product-photos/${req.user}/${req.file.filename}`});
       res.json({result: 'El producto ha sido añadido!'});
     } catch(err){
       res.json({result: 'Ha ocurrido un error. Intentelo de nuevo!'});

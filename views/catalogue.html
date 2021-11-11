@@ -4,8 +4,21 @@
 	<title></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      img{
+      	width: 50px;
+      	height: 50px;
+      }
+      #shoppingCart{
+        position: fixed;
+        z-index: 1;
+        top: 40%;
+        left: 60%;
+      }
+	</style>
 </head>
 <body>
+  
   <!--This view will change depending on whether the user is logged in or not-->
   <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
@@ -19,8 +32,6 @@
       </form>
   </div>
 </nav>
-
-
 
 <button type="button" class="btn btn-success" id="shoppingCart" data-bs-toggle="modal" data-bs-target="#cart">Tu compra</button>
 
@@ -163,7 +174,7 @@
            classification={product.classification}
            availableQuantity={product.availableQuantity}
            price={product.price}
-           src={product.src}/>
+           src={product.productPhotoPath}/>
           })}</ul>
         )
       }
@@ -258,7 +269,7 @@
               <tbody>
                 {this.state.items.map(item=>{
                   return <tr key={item.name}>
-                           <td>{item.name}</td><td>{item.price}</td><td>{item.amount}</td><td>{item.src}</td>
+                           <td>{item.name}</td><td>{item.price}</td><td>{item.amount}</td><td><img src={item.src}/></td>
                          </tr>
                 })}
               </tbody>
@@ -293,14 +304,12 @@
         this.setState({
           methodName: event.target.value
         })
-        console.log(this.state.methodName)
       }
 
       changeReferenceNumber(event){
         this.setState({
           referenceNumber: event.target.value
         })
-        console.log(this.state.referenceNumber)
       }
 
      /*-El evento confirmar del componente purchase, disparara el evento sendPurchaseData del componente shopping cart
@@ -330,11 +339,6 @@
       }
 
       async transaction(purchaseData){
-        console.log(this.props.shopName)
-        console.log(purchaseData)
-        console.log(this.state.totalPrice)
-        console.log(this.state.methodName)
-        console.log(this.state.referenceNumber)
         let data={
           commerceName: this.props.shopName,
           items: purchaseData,
@@ -392,6 +396,7 @@
         )
       }
     }
+
     //Ok... I need pass as props the financial information of the commerce to the purchase component, just that...
     let data=await getProducts(commerceName)
     let paymentData=new paymentInformation(commerceName)
@@ -412,7 +417,6 @@
     addToCartButton.className.color='green';
   });*/
 </script>
-
 
 </body>
 </html>
