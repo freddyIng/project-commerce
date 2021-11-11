@@ -10,14 +10,15 @@
   <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
+         <a href="/customer/purchases">Tus transacciones</a>
+     <a href="/customer/account-settings">Configuracion de la cuenta</a>
+     <a href="/customer/logout">Salir</a>
       <form class="d-flex">
         <input class="form-control me-2" type="search" placeholder="Nombre del comercio" aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Buscar</button>
       </form>
   </div>
 </nav>
-
-
 
 
 
@@ -120,13 +121,18 @@
       constructor(props){
         super(props)
         this.addToCart=this.addToCart.bind(this)
-        //Por ahora no hay estados. Esto cambiara con el carrito de compra, websockets, compra definitiva, etc...
+        /*Por ahora no hay estados, salvo el color del boton que cambia temporalmente. Esto cambiara con el carrito de compra, websockets, compra definitiva, etc...*/
         this.state={
-          
+          addToCartButtonColor: 'btn btn-warning'
         }
       }
 
       addToCart(){
+        //I change the color of the botton (changin the state color, a class of the button) for like 0.5 seconds
+        this.setState({
+          addToCartButtonColor: 'btn btn-primary'
+        })
+        setTimeout(()=>this.setState({addToCartButtonColor: 'btn btn-warning'}), 250)
         //This will fire the event "addItem" of the shopping cart component. 
         /*The propsobject is not extensible, so, I send a new object with the props of interest, not the this.props, because,
         the property amount will be necessary in the shopping cart component*/
@@ -142,7 +148,7 @@
             <p>Cantidad disponible: {this.props.availableQuantity}</p>
             <p>Precio: {this.props.price}</p>
             <img src={this.props.src} alt='Foto del producto'/>
-           <button type="button" className="btn btn-warning" onClick={this.addToCart}>Agregar al carrito</button>
+           <button type="button" className={this.state.addToCartButtonColor} onClick={this.addToCart} id="addToCart">Agregar al carrito</button>
           </li>
         )
       }
@@ -168,7 +174,8 @@
         super(props)
         this.addItem=this.addItem.bind(this)
         this.state={
-          items: []
+          items: [],
+          totalPrice: 0
         }
       }
 
@@ -179,6 +186,12 @@
         eventBus.on('sendPurchaseData', data=>{
           let productsData=this.state.items
           eventBus.dispatch('receiveProductsDataFromTheShoppingCart', productsData)
+        })
+        eventBus.on('sucessfullPurchase', data=>{
+          //The user has buyed the items, so, the shopping cart now is empty
+          this.setState({
+            items: []
+          })
         })
       }
 
@@ -205,6 +218,17 @@
             items: newItemsValue
           })
         }
+        //I calculate the total price again
+        let newTotalPrice=0
+        this.state.items.forEach(item=>{
+          newTotalPrice+=parseInt(item.amount)*parseInt(item.price)
+        })
+        this.setState({ 
+          totalPrice: newTotalPrice
+        })
+        /*Next, I update the total price in the purchase modal.
+        Btw, setState is asyncrhonous. For that, I send the newTotalPrice, not the state*/
+        eventBus.dispatch('updateTotalPrice', {newPrice: newTotalPrice}) 
       }
 
       deleteItem(itemName){
@@ -225,7 +249,7 @@
             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div className="modal-body" id="cartBody">
-            <table>
+            <table className="table">
               <thead>
                 <tr>
                   <th>Producto</th><th>Precio</th><th>Cantidad</th>
@@ -257,8 +281,9 @@
         this.confirm=this.confirm.bind(this)
         this.transaction=this.transaction.bind(this)
         this.changeMethodName=this.changeMethodName.bind(this)
-        this.changeReferenceNumer=this.changeReferenceNumber.bind(this)
+        this.changeReferenceNumber=this.changeReferenceNumber.bind(this)
         this.state={
+          totalPrice: 0,
           methodName: '',
           referenceNumber: ''
         }
@@ -268,12 +293,14 @@
         this.setState({
           methodName: event.target.value
         })
+        console.log(this.state.methodName)
       }
 
       changeReferenceNumber(event){
         this.setState({
           referenceNumber: event.target.value
         })
+        console.log(this.state.referenceNumber)
       }
 
      /*-El evento confirmar del componente purchase, disparara el evento sendPurchaseData del componente shopping cart
@@ -286,27 +313,45 @@
       }
 
       componentDidMount(){
+        eventBus.on('updateTotalPrice', data=>{
+          this.setState({
+            totalPrice: data.newPrice
+          })
+        })
         eventBus.on('receiveProductsDataFromTheShoppingCart', data=>{
           //First I obtain the total price (just multiply the price of each item with the amount, and sum, duhhh)
-          let totalPrice=0
+          /*let totalPrice=0
           data.forEach(item=>{
             totalPrice+=parseInt(item.amount)*parseInt(item.price)
           })
-          data.totalPrice=totalPrice
+          data.totalPrice=totalPrice*/
           this.transaction(data)
         })
       }
 
       async transaction(purchaseData){
+        console.log(this.props.shopName)
         console.log(purchaseData)
+        console.log(this.state.totalPrice)
         console.log(this.state.methodName)
         console.log(this.state.referenceNumber)
-        let request=await fetch('/customer/catalogue/buy', {method: 'POST', })
+        let data={
+          commerceName: this.props.shopName,
+          items: purchaseData,
+          totalPrice: this.state.totalPrice,
+          paymentMethod: this.state.methodName,
+          referenceTransactionNumber: this.state.referenceNumber
+        }
+        let request=await fetch('/customer/catalogue/buy', {method: 'POST', headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify(data)})
         let response=await request.json()
-        if (response.result==='Successful operation'){
+        if (response.result==='Successfull operation'){
           //Delete all the items of the shopping cart, and show the message of succesfull purchase
+          eventBus.dispatch('sucessfullPurchase', null)
+          alert('Compra exitosa!')
         } else{
           //Show failed message...
+          alert('Ha ocurrido un error. Intentelo de nuevo')
         } 
       }
 
@@ -316,17 +361,18 @@
           <div className="modal-dialog">
     <div className="modal-content">
       <div className="modal-header">
-        <h5 className="modal-title" id="exampleModalLabel" onClick={this.confirm}>Confirmar compra</h5>
+        <h5 className="modal-title" id="exampleModalLabel">Confirmar compra</h5>
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div className="modal-body" id="purchaseBody">
-      	<p>Estos son los metodos de pago y los datos usados por la tienda. Haz la respectiva transaccion con alguno de estos metodos
+      	<p>Estos son los metodos de pago y los datos usados por {this.props.shopName}. Haz la respectiva transaccion con alguno de estos metodos
       	y luego confirma la transaccion</p>
         {this.props.paymentMethods.map(method=>{
           return <p key={method.name}>
           	       {method.name+' : '+method.referenceNumber}
           	     </p>
         })}
+        <p>El precio total de tu compra es {this.state.totalPrice}</p>
         <p>Selecciona tu metodo de pago</p>
         <select className="form-control" id="exampleFormControlSelect1" value={this.state.methodName} onChange={this.changeMethodName}>
             {this.props.paymentMethods.map(method=>{
@@ -337,7 +383,7 @@
         <input type="text" name="referenceNumberClient" value={this.state.referenceNumber} onChange={this.changeReferenceNumber}/>
       </div>
       <div className="modal-footer">
-        <button type="button" className="btn btn-success" data-bs-dismiss="modal" id="confirmPurchase">Confirmar compra</button>
+        <button type="button" className="btn btn-success" data-bs-dismiss="modal" id="confirmPurchase" onClick={this.confirm}>Confirmar compra</button>
         <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -350,7 +396,7 @@
     let data=await getProducts(commerceName)
     let paymentData=new paymentInformation(commerceName)
     const cart=<ShoppingCart />
-    const purchase=<Purchase paymentMethods={await paymentData.getData()}/>
+    const purchase=<Purchase paymentMethods={await paymentData.getData()} shopName={commerceName}/>
     const list=<List products={data.products} />
     ReactDOM.render(
       <div>
@@ -361,8 +407,11 @@
       document.getElementById('root')
     )
   })()
+  /*let addToCartButton=document.getElementById('addToCart');
+  addToCartButton.addEventListener('click', ()=>{
+    addToCartButton.className.color='green';
+  });*/
 </script>
-
 
 
 </body>

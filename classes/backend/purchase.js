@@ -14,8 +14,8 @@ Purchase.init({
   items: {
     type: DataTypes.ARRAY(DataTypes.JSON)
   },
-  buyerData:{
-    type: DataTypes.JSON
+  totalPrice: {
+    type: DataTypes.FLOAT
   },
   paymentMethod: {
     type: DataTypes.STRING

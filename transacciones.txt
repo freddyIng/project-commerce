@@ -1,0 +1,20 @@
+Entonces, usare la diferencia entre las url que se presentan a los administradores y clientes (customer, admin),
+para decidir que informacion renderizar, por ejemplo:
+Para la barra de navegacion, renderizare links distintos
+Para la tabla de notificaciones, renderizare el numero de cedula y dejare de lado el nombre del comercio si la vista
+es de un administrador, y viceversa si la vista es de un cliente (renderizo nombre del comercio y dejo a un lado dni)
+Eso es todo por ahora...
+Cabe destacar, que tambien necesito agregar distintos comportamientos a cada transaccion si la vista es de un administrador,
+entonces, por ejemplo, podria aparecer columnas adicionales que indiquen 
+si el pedido/compra esta pendiente de confirmar, confirmado, entregado o cancelado. Necesitaria
+agregar un boton de confirmacion y entrega al administrador.
+Obviamente necesito alterar el modelo/tabla purchase de la base de datos, para agregar esos estados.
+
+Que otra cosa... Hmmm, podria agregar un comportamiento de cancelacion si la vista es de un cliente? Por si el usuario 
+quiere cancelar su compra o algo asi. 
+
+Y finalmente... A este sistema necesito añadirle websockets, tu sabes, para hacerlo en tiempo real. Creo que no es lo unico
+que tendra websockets, ya que, por ejemplo, los inventarios se actualizaran en tiempo real cuando se agregue, quiten items
+al carrito. 
+
+

@@ -2,8 +2,105 @@
 <html>
 <head>
 	<title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<div id="root"></div>
 
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<script type="text/babel">
+  class NavBar extends React.Component{
+    constructor(props){
+      super(props)
+    }
+
+    render(){
+      return (
+          <nav className="navbar navbar-dark bg-dark">
+           <div className="container-fluid">
+             <a className="navbar-brand" href="/"><h4><span style={{color: 'yellow'}}>Vene</span><span style={{color: 'blue'}}>Comer</span><span style={{color: 'red'}}>cios</span></h4></a>
+             {this.props.userType==='customer'? <a href="/customer/home-client">Busqueda</a> :  <div><a href="/admin/inventory">Inventario</a><a href="/admin/edit-payment-information">Metodos de pago</a></div>}
+            <a href={this.props.userType==='customer'? '/customer/purchases' : '/admin/purchases'}>Tus transacciones</a>
+            <a href={this.props.userType==='customer'? 'customer/account-settings' : '/admin/account-settings'}>Configuracion de la cuenta</a>
+            <a href={this.props.userType==='customer'? '/customer/logout' : '/admin/logout'}>Salir</a>
+           	{this.props.userType==='customer'? <form className="d-flex"><input className="form-control me-2" type="search" placeholder="Nombre del comercio" aria-label="Search"/>
+           <button className="btn btn-outline-success" type="submit">Buscar</button></form> : ''}
+          </div>
+         </nav>
+      )
+    }
+  }
+  //In the mean time, I render the items as individuals paragraph in the column, but, I will use a modal
+  (async function test(){
+    class Table extends React.Component{
+      constructor(props){
+        super(props)
+        /*This component will have state, because the purchases can be in real time. Oh, at least if the view is of a admin, and obviously
+        if the admin is seeing this view. Shit, I
+        wonder if is a good idea to have this class (and view) shared between the admin and the client, because, the real time
+        state of notificacionts is only for the admin, there will be differences in terms of actions that can be executed on each transaction (confirm transacction, delivered for admin, cancel for the client...) Well, for now I will not worry about that*/
+        this.state={}
+      }
+
+      render(){
+        return (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>{this.props.userType==='admin'? 'Cedula del comprador' : 'Nombre del comercio'}</th><th>Productos</th><th>Precio total</th><th>Metodo de pago</th><th>Numero de referencia de la transaccion</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.props.purchases.map(purchase=>{
+                  return <tr key={purchase.referenceTransactionNumber}>
+                           <td>{this.props.userType==='admin'? purchase.customerDni : purchase.commerceName}</td><td>{purchase.items.map(item=>{
+                           	return <div key={item.name}>
+                           	         <p>Nombre: {item.name}</p>
+                           	        <p>Cantidad: {item.amount}</p>
+                           	        <p>Precio: {item.price}</p>
+                           	       </div>
+                           })}</td><td>{purchase.totalPrice}</td><td>{purchase.paymentMethod}</td>
+                           <td>{purchase.referenceTransactionNumber}</td>
+                         </tr>
+              })}
+            </tbody>
+          </table>
+        )
+      }
+    }
+
+    class transactions{
+      constructor(userType){
+        this.userType=userType
+      }
+
+      async getTransactions(){
+        let request=await fetch(`${this.userType}/purchases/data`, {method: 'GET', headers: {'Content-Type': 'application/json'}})
+        let response=await request.json()
+        if (response.message==='Sucessfull operation'){
+          return response.result
+        } else{
+          alert('Ha ocurrido un error al recuperar sus transacciones. Intentelo de nuevo')
+          return []
+        }
+      }
+    }
+    let userType=window.location.pathname.replace('/purchases', '')
+    let transactionsObject=new transactions(userType)
+    const navBar=<NavBar userType={userType.replace('/', '')} />
+    const purchasesTable=<Table userType={userType.replace('/', '')} purchases={await transactionsObject.getTransactions()} />
+    ReactDOM.render(
+      <div>
+      {navBar}
+      {purchasesTable}
+      </div>,
+      document.getElementById('root')
+    )
+  })()
+</script>
 </body>
 </html>

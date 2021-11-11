@@ -3,7 +3,7 @@ const viewPath=__dirname.replace('/routes', '/views');
 const classPath=__dirname.replace('/routes', '/classes/backend/');
 const customer=require(classPath+'customer.js');
 const commerce=require(classPath+'commerce.js');
-const purchase=require(classPath+'purchase.js');
+const purchases=require(classPath+'purchase.js');
 const stock=require(classPath+'stock.js');
 /*const session=require('express-session');
 const passport=require('passport');
@@ -136,17 +136,36 @@ router.get('/catalogue/payment-information', async (req, res)=>{
 router.post('/catalogue/buy', async (req, res)=>{
   //Remeber that the purchase table. It belongs to both the business and the customer. Both can consult it when viewing their transactions.
   try{
-    await purchase.create({
+    await purchases.sync();
+    await purchases.create({
       commerceName: req.body.commerceName,
       customerDni: req.user, 
       items: req.body.items, 
-      buyerData: req.body.buyerData,
+      totalPrice: req.body.totalPrice,
       paymentMethod: req.body.paymentMethod,
       referenceTransactionNumber: req.body.referenceTransactionNumber
     });
-    res.json({result: 'Successful operation'});
+    res.json({result: 'Successfull operation'});
   } catch(err){
+    console.log(err)
     res.json({result: 'Failed operation'});
+  }
+});
+
+router.get('/purchases', (req, res)=>{
+  res.sendFile(viewPath+'/purchases.html');
+});
+
+router.get('/purchases/data', async (req, res)=>{
+  try{
+    let data=await purchases.findAll({
+      where: {
+        customerDni: req.user
+      }
+    });
+    res.json({message: 'Sucessfull operation', result: data});
+  } catch(err){
+    res.json({message: 'Failed operation'});
   }
 });
 

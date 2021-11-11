@@ -2,6 +2,7 @@ const router=require('express').Router();
 const viewPath=__dirname.replace('/routes', '/views');
 const classPath=__dirname.replace('/routes', '/classes/backend/');
 const commerce=require(`${classPath}commerce.js`);
+const purchases=require(`${classPath}purchase.js`);
 const stock=require(classPath+'stock.js');
 const multer=require('multer');
 const upload=multer({dest: `commerce-photos/product-photos`}); /*Debo hallar la manera de subir la foto a la subcarpeta del negocio
@@ -205,7 +206,24 @@ router.put('/update-product', async (req, res)=>{
   }
 });
 
-router.get('/admin/account-settings', (req, res)=>{
+router.get('/purchases', (req, res)=>{
+  res.sendFile(viewPath+'/purchases.html');
+});
+
+router.get('/purchases/data', async (req, res)=>{
+  try{
+    let data=await purchases.findAll({
+      where: {
+        commerceName: req.user
+      }
+    });
+    res.json({message: 'Sucessfull operation', result: data});
+  } catch(err){
+    res.json({message: 'Failed operation'});
+  }
+});
+
+router.get('/account-settings', (req, res)=>{
   res.sendFile(viewPath+'/account-settings-commerce.html');
 });
 
