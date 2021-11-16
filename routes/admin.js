@@ -5,7 +5,11 @@ const commerce=require(`${classPath}commerce.js`);
 const purchases=require(`${classPath}purchase.js`);
 const stock=require(classPath+'stock.js');
 const multer=require('multer');
-const upload=multer({dest: `commerce-photos/product-photos`}); /*Debo hallar la manera de subir la foto a la subcarpeta del negocio
+const upload=multer({dest: `commerce-photos/product-photos`});
+const { body, validationResult }=require('express-validator');
+const bcrypt=require('bcrypt');
+const saltRounds=10;
+/*Debo hallar la manera de subir la foto a la subcarpeta del negocio
 Supongo que podria trasladar la foto desde ese directorio al subdirectorio dle negocio usando fs. Y si no existe el directorio,
 quiere decir que el administrador todavia no ha subido ningun producto, y por lo tanto, tendra que crearse por primera vez.*/
 const fs=require('fs').promises;
@@ -13,59 +17,6 @@ const fs=require('fs').promises;
 router.get('/', (req, res)=>{
   res.sendFile(viewPath+'/admin-login.html');
 });
-
-//const session=require('express-session');
-/*const passport=require('passport');
-const LocalStrategy=require('passport-local').Strategy;
-
-passport.use('local-login', new LocalStrategy(async (username, password, done)=>{
-  try{
-    //Remember that bcrypt must be used for hash the password and compare with the hash password of database. Also, remember
-    //the validation and sanitization of the username and password
-    let commerceAdmin=await commerce.findAll({
-      where: {
-        email: username,
-        password: password
-      }
-    });
-    //Que mierda javascript. Si variable=[], variable===[] es false... Por eso use length. findAll retorna [] si no encuentra nada.
-    //Se supone que el findAll retorna un array de objetos, donde cada objeto es una fila de la tabla de la base de datos.
-    if (commerceAdmin.length===0){ //I am not sure if the user doesnt exist, this is null. I will check the sequelize documentation
-      return done(null, false, {message: 'Username or password incorrect'});
-    }
-    commerceAdmin=commerceAdmin[0];
-    return done(null, commerceAdmin);
-  } catch(err){
-    console.log('Error en el inicio de sesion del usuario.');
-    return done(err);
-  }
-}));
-
-passport.serializeUser((user, done)=>{
-  return done(null, user.commerceName);
-});
-
-passport.deserializeUser(async (id, done)=>{
-  try{
-    let commerceAdmin=await commerce.findAll({
-      where: {
-        commerceName: id
-      }
-    });
-    if (commerceAdmin.length===1){
-      return done(false, id); //Si esta el usuario, por lo que error valdra false
-    } else{
-      return done(true, id);
-    }
-  } catch(err){
-    console.log('Error en la desearilizacion del usuario.');
-    return done(err, id);
-  }
-});
-
-//Post verb beacause is more secure (dont show the parameters of the user in the url).
-router.post('/login', passport.authenticate('local-login', { successRedirect: '/admin/inventory',
-                                   failureRedirect: '/admin' }));*/
 
 router.get('/signin', (req, res)=>{
   res.sendFile(viewPath+'/admin-signin.html');
@@ -80,27 +31,51 @@ async function deleteFile(fileName){
   }
 }
 
-router.post('/signin', async (req, res)=>{
-  if (req.file.mimetype==='image/png' || req.file.mimetype==='image/jpeg'){
-    try{
-      /*The photo path will be in the directory photos/commerce_photos/{commerceName}/{commercePhotoPath} where
-      the commercePhotoPath will be the generated number or string of the multer module*/
-      let newCommerce=await commerce.create({commerceName: req.body.commerceName, descriptionOfTheCommerce: req.body.descriptionOfTheCommerce, email:
-        req.body.email, phoneNumber: req.body.phoneNumber, password: req.body.password, state: req.body.state, city: req.body.city,
-        direction: req.body.direction, commercePhotoPath: req.file.path});
-      res.send('Operacion exitosa');
-    } catch(err){
-      console.log(err);
-      console.log(await deleteFile(req.file.filename));
-    }
-  } else{
-    console.log(await deleteFile(req.file.filename));
-    return res.send('Debes subir una foto/imagen (archivo png o jpg), no un tipo de archivo diferente.');
+router.post('/signin',
+  body('commerceName').isLength({min: 3, max: 30}).trim().escape(),
+  body('email').isEmail().normalizeEmail(),
+  body('phoneNumber').trim().escape(),
+  body('password').isLength({min: 8, max: 20}).trim().escape(),
+  body('state').trim().escape(),
+  body('city').trim().escape(),
+  body('direction').trim().escape(), async (req, res)=>{
+  const errors=validationResult(req);
+  if (!errors.isEmpty()){
+    return res.status(400).json({ errors: errors.array() });
   }
+  bcrypt.genSalt(saltRounds, (err, salt)=>{
+    if (err) return res.send('Ha ocurrido un error');
+    bcrypt.hash(req.body.password, salt, async (err, hash)=>{
+    if (err) return res.send('Ha ocurrido un error. Intentelo de nuevo');
+      try{
+        let newCommerce=await commerce.create({commerceName: req.body.commerceName, email:
+          req.body.email, phoneNumber: req.body.phoneNumber, password: hash, state: req.body.state, city: req.body.city,
+          direction: req.body.direction});
+        res.send('Operacion exitosa');
+      } catch(err){
+        console.log(err);
+        res.send('Ha ocurrido un error. Intentelo de nuevo');
+      }
+  });
+  });
 });
 
 router.get('/edit-payment-information', (req, res)=>{
   res.sendFile(viewPath+'/edit-payment-information.html');
+});
+
+router.get('/payment-information', async (req, res)=>{
+  try{
+    let data=await commerce.findAll({
+      attributes: ['paymentInformation'],
+      where: {
+        commerceName: req.user
+      }
+    })
+    res.json({message: 'Sucessfull operation', result: data});
+  } catch(err){
+    res.json({message: 'Failed operation'});
+  }
 });
 
 router.put('/edit-payment-information', async (req, res)=>{
@@ -138,7 +113,13 @@ router.get('/get-products', async (req, res)=>{
   }
 });
 
+const validator=require('validator');
+
 router.post('/add-product', upload.single('productPhoto'), async (req, res)=>{
+  req.body.productName=validator.trim(req.body.productName); req.body.productName=validator.escape(req.body.productName);
+  req.body.classification=validator.trim(req.body.classification); req.body.classification=validator.escape(req.body.classification);
+  req.body.amount=validator.trim(req.body.amount); req.body.amount=validator.escape(req.body.amount);
+  req.body.price=validator.trim(req.body.price); req.body.price=validator.escape(req.body.price);
   if (req.file.mimetype==='image/png' || req.file.mimetype==='image/jpeg'){
     try{
       //Antes de agregar el producto a database, muevo imagen al subdirectorio correspondiente del comercio. Si no existe, lo creo
@@ -186,6 +167,10 @@ router.delete('/delete-product', async (req, res)=>{
 });
 
 router.put('/update-product', async (req, res)=>{
+  req.body.productName=validator.trim(req.body.productName); req.body.productName=validator.escape(req.body.productName);
+  req.body.classification=validator.trim(req.body.classification); req.body.classification=validator.escape(req.body.classification);
+  req.body.availableQuantity=validator.trim(req.body.availableQuantity); req.body.amount=validator.escape(req.body.availableQuantity);
+  req.body.price=validator.trim(req.body.price); req.body.price=validator.escape(req.body.price);
   //Btw, optional update photo. I need multer and fs (fs for delete the old photo)
   try{
     let products=await stock.update({

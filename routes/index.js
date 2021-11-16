@@ -10,39 +10,74 @@ is a client*/
 const session=require('express-session');
 const passport=require('passport');
 const LocalStrategy=require('passport-local').Strategy;
+const { body, validationResult }=require('express-validator');
+const bcrypt=require('bcrypt');
+const saltRounds=10;
 
+const validator=require('validator');
 passport.use('local-login', new LocalStrategy(async (username, password, done)=>{
   try{
-  	//Remember that bcrypt must be used for hash the password and compare with the hash password of database. Also, remember
-  	//the validation and sanitization of the username and password
+    username=validator.trim(username);
+    username=validator.escape(username);
+    password=validator.trim(password);
+    password=validator.escape(password);
     if (isNaN(parseInt(username))){
-      let commerceAdmin=await commerce.findAll({
+      let hashPassword=await commerce.findAll({attributes: ['password'],
         where: {
-          email: username,
-          password: password
-        }
-      });
-      //Que mierda javascript. Si variable=[], variable===[] es false... Por eso use length. findAll retorna [] si no encuentra nada.
-      //Se supone que el findAll retorna un array de objetos, donde cada objeto es una fila de la tabla de la base de datos.
-      if (commerceAdmin.length===0){ //I am not sure if the user doesnt exist, this is null. I will check the sequelize documentation
+          email: username
+      }});
+      if (hashPassword.length===1){
+        bcrypt.compare(password, hashPassword[0].dataValues.password, async (err, result)=>{
+          if (err) return done(null, false, {message: 'Username or password incorrect'});
+          if (result){
+            let commerceAdmin=await commerce.findAll({
+              where: {
+                email: username
+              }
+            });
+            //Que mierda javascript. Si variable=[], variable===[] es false... Por eso use length. findAll retorna [] si no encuentra nada.
+            //Se supone que el findAll retorna un array de objetos, donde cada objeto es una fila de la tabla de la base de datos.
+            if (commerceAdmin.length===0){ //I am not sure if the user doesnt exist, this is null. I will check the sequelize documentation
+              return done(null, false, {message: 'Username or password incorrect'});
+            }
+            commerceAdmin=commerceAdmin[0];
+            return done(null, commerceAdmin);
+          } else{
+            return done(null, false, {message: 'Username or password incorrect'});
+          }
+        });
+      } else{
         return done(null, false, {message: 'Username or password incorrect'});
       }
-      commerceAdmin=commerceAdmin[0];
-      return done(null, commerceAdmin);
+      ///////////////////////////////////////
     } else if (typeof parseInt(username)==='number'){
-      let theCustomer=await customer.findAll({
+      let hashPassword=await customer.findAll({attributes: ['password'],
         where: {
-          dni: username,
-          password: password
-        }
-      });
-      /*Que mierda javascript. Si variable=[], variable===[] es false... Por eso use length. findAll retorna [] si no encuentra nada.
-      Se supone que el findAll retorna un array de objetos, donde cada objeto es una fila de la tabla de la base de datos.*/
-      if (theCustomer.length===0){ //I am not sure if the user doesnt exist, this is null. I will check the sequelize documentation
+          dni: username
+      }});
+      if (hashPassword.length===1){
+        bcrypt.compare(password, hashPassword[0].dataValues.password, async (err, result)=>{
+          if (err) return done(null, false, {message: 'Username or password incorrect'});
+          if (result){
+            let theCustomer=await customer.findAll({
+              where: {
+                dni: username
+              }
+            });
+            //Que mierda javascript. Si variable=[], variable===[] es false... Por eso use length. findAll retorna [] si no encuentra nada.
+            //Se supone que el findAll retorna un array de objetos, donde cada objeto es una fila de la tabla de la base de datos.
+            if (theCustomer.length===0){ //I am not sure if the user doesnt exist, this is null. I will check the sequelize documentation
+              return done(null, false, {message: 'Username or password incorrect'});
+            }
+            theCustomer=theCustomer[0];
+            return done(null, theCustomer);
+          } else{
+            return done(null, false, {message: 'Username or password incorrect'});
+          }
+        });
+      } else{
         return done(null, false, {message: 'Username or password incorrect'});
       }
-      theCustomer=theCustomer[0];
-      return done(null, theCustomer);
     }
   } catch(err){
     console.log('Error en el inicio de sesion del usuario.');
@@ -116,26 +151,10 @@ router.get('/login/which-path', (req, res)=>{
   }
 });
 
+body('username').trim().escape(),
+body('password').trim().escape()
+
 router.post('/login', passport.authenticate('local-login', { successRedirect: '/login/which-path',
                                    failureRedirect: '/' }));
-
-//Post verb beacause is more secure (dont show the parameters of the user in the url).
-
-/*This methods doesn't work. For that, I redirect to a second route for decide wich path (client or admin)
-router.post('/login', (req, res)=>{
-  let route='';
-  if (isNaN(parseInt(req.body.username))){
-    route='/admin/inventory'
-  } else if (typeof parseInt(req.body.username)==='number'){
-    route='/customer/home-client'
-  }
-  return passport.authenticate('local-login', { successRedirect: [route],
-                                   failureRedirect: '/' });
-});
-
-
-router.post('/login', passport.authenticate('local-login', { successRedirect: [test(req.body.username)],
-                                   failureRedirect: '/' })
-);*/
 
 module.exports=router;

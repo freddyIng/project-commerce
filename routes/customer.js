@@ -5,55 +5,9 @@ const customer=require(classPath+'customer.js');
 const commerce=require(classPath+'commerce.js');
 const purchases=require(classPath+'purchase.js');
 const stock=require(classPath+'stock.js');
-/*const session=require('express-session');
-const passport=require('passport');
-const LocalStrategy=require('passport-local').Strategy;
-
-
-passport.use('local-login', new LocalStrategy(async (username, password, done)=>{
-  try{
-    let theCustomer=await customer.findAll({
-      where: {
-        email: username,
-        password: password
-      }
-    });
-    if (theCustomer.length===0){
-      return done(null, false, {message: 'Username or password incorrect'});
-    }
-    theCustomer=theCustomer[0];
-    return done(null, theCustomer);
-  } catch(err){
-    console.log('Error en el inicio de sesion del usuario.');
-    return done(err);
-  }
-}));
-
-passport.serializeUser((user, done)=>{
-  return done(null, user.dni);
-});
-
-passport.deserializeUser(async (id, done)=>{
-  try{
-    let theCustomer=await customer.findAll({
-      where: {
-        dni: id
-      }
-    });
-    if (theCustomer.length===1){
-      return done(false, id); //Si esta el usuario, por lo que error valdra false
-    } else{
-      return done(true, id);
-    }
-  } catch(err){
-    console.log('Error en la desearilizacion del usuario.');
-    return done(err, id);
-  }
-});
-
-//Post verb beacause is more secure (dont show the parameters of the user in the url).
-router.post('/login', passport.authenticate('local-login', { successRedirect: '/customer/home-client',
-                                   failureRedirect: '/' }));*/
+const { body, validationResult }=require('express-validator');
+const bcrypt=require('bcrypt');
+const saltRounds=10;
 
 router.get('/logout', (req, res)=>{
   req.logout();
@@ -64,20 +18,34 @@ router.get('/signin', (req, res)=>{
   res.sendFile(viewPath+'/customer/signin.html');
 });
 
-router.post('/signin', async (req, res)=>{
-  try{
-    await customer.create({
-      name: req.body.name, 
-      lastName: req.body.lastName, 
-      dni: req.body.dni,
-      password: req.body.password, 
-      email: req.body.email, 
-      phoneNumber: req.body.phoneNumber
-    });
-    res.send('The has registrado con exito! Ahora puedes iniciar sesion para empezar a usar nuestro servicio.');
-  } catch(err){
-    res.send('Ha ocurrido un error. Intentelo de nuevo!');
+router.post('/signin',
+  body('name').isLength({min: 5, max: 30}).trim().escape(), //min 5 because the short name that I remember is "ana" (max 30 I don't know :p)
+  body('lastName').isLength({min: 5, max: 30}).trim().escape(),
+  body('dni').isNumeric().isLength({min: 6, max: 8}).trim().escape(),
+  body('password').isLength({min: 8, max: 20}).trim().escape(),
+  body('email').isEmail().normalizeEmail().trim().escape(),
+  body('phoneNumber').isNumeric().trim().escape()
+  , async (req, res)=>{
+  const errors=validationResult(req);
+  if (!errors.isEmpty()){
+    return res.status(400).json({ errors: errors.array() });
   }
+  bcrypt.hash(req.body.password, saltRounds, async (err, hash)=>{
+    if (err) return res.send('Ha ocurrido un error al encriptar tu contraseña. Intentelo de nuevo');
+    try{
+      await customer.create({
+        name: req.body.name, 
+        lastName: req.body.lastName, 
+        dni: req.body.dni,
+        password: hash, 
+        email: req.body.email, 
+        phoneNumber: req.body.phoneNumber
+      });
+      res.send('The has registrado con exito! Ahora puedes iniciar sesion para empezar a usar nuestro servicio.');
+    } catch(err){
+      res.send('Ha ocurrido un error. Intentelo de nuevo!');
+    }
+  });
 });
 
 
@@ -133,10 +101,14 @@ router.get('/catalogue/payment-information', async (req, res)=>{
   }
 });
 
+const validator=require('validator');
+
 router.post('/catalogue/buy', async (req, res)=>{
   //Remeber that the purchase table. It belongs to both the business and the customer. Both can consult it when viewing their transactions.
   try{
-    await purchases.sync();
+    //I sanitize the transction number because is the only keyboard entry for the client
+    req.body.referenceTransactionNumber=validator.trim(req.body.referenceTransactionNumber);
+    req.body.referenceTransactionNumber=validator.escape(req.body.referenceTransactionNumber);
     await purchases.create({
       commerceName: req.body.commerceName,
       customerDni: req.user, 
@@ -145,6 +117,7 @@ router.post('/catalogue/buy', async (req, res)=>{
       paymentMethod: req.body.paymentMethod,
       referenceTransactionNumber: req.body.referenceTransactionNumber
     });
+    //Apart from update the purchases table, I need update the stock table of the respective commerce
     res.json({result: 'Successfull operation'});
   } catch(err){
     console.log(err)

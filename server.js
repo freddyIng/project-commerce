@@ -1,4 +1,3 @@
-
 const express=require('express');
 const app=express();
 /*const winston=require('winston');
@@ -20,6 +19,7 @@ app.use(express.static('images'));
 app.use(express.static('commerce-photos'));
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
+app.use(express.static(__dirname+'/node_modules/validator'));
 
 const index=require('./routes/index.js');
 const signin=require('./routes/signin.js');

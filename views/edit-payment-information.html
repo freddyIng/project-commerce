@@ -17,72 +17,89 @@
   </div>
 </nav>
 
-<!--Como sera la vista de la edicion de metodos de pago?-->
+
 <h3>Bancos</h3>
 <p>Inserta numero de cuenta si tienes cuenta en el banco de tu eleccion</p>
 <div id="banks">
   <label>Banco de Venezuela</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco de Venezuela">
   <label>Banco Mercantil</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco Mercantil">
   <label>Banco BBVA Provincial</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco BBVA Provincial">
   <label>Banco Banesco</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco Banesco">
   <label>Banco BOD</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco BOD">
   <label>Banco Bicentenario</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco Bicentenario">
   <label>Banco Bancaribe</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco Bancaribe">
   <label>Banco del Tesoro</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco del Tesoro">
   <label>Banca Amiga</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banca Amiga">
   <label>Banco Activo</label>
-  <input type="text" class="form-control" name="">
+  <input type="text" class="form-control" id="Banco Activo">
 </div>
 
 <h3>Dolares electronicos</h3>
 <p>Introduce tu email, numero telefonico o identificador equivalente de metodos de pago de tu eleccion</p>
 <div id="other">
 <label>Zelle</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Zelle">
 <label>Airtm</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Airtm">
 <label>Reserve</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Reserve">
 <label>Paypal</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Paypal">
 </div>
 
 <p>Inserta tu direccion de billetera en las criptomonedas de tu interes</p>
 <h3>Criptomonedas</h3>
 <div id="cryptos">
 <label>Bitcoin</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Bitcoin">
 <label>Ethereum</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Ethereum">
 <label>Tether</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Tether">
 <label>Litecoin</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Litecoin">
 <label>Dash</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Dash">
 <label>XRP</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="XRP">
 <label>EOS</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="EOS">
 <label>Dodgecoin</label>
-<input type="text" class="form-control" name="">
+<input type="text" class="form-control" id="Dodgecoin">
 </div>
 
-<button type="button" class="btn btn-primary" id="update">
+<button type="button" class="btn btn-primary" id="update">Actualizar</button>
 
+<script type="text/javascript" src="/validator.min.js"></script>
 <script type="text/javascript">
+  (async function getPaymentInformation(){
+    let request=await fetch('/admin/payment-information', {method: 'GET', });
+    let response=await request.json();
+    if (response.message==='Sucessfull operation'){
+      response.result[0].paymentInformation.forEach(method=>{
+        let inputElement=document.getElementById(method.name);
+        inputElement.value=method.referenceNumber;
+      });
+    } else{
+      alert('Ha ocurrido un error al momento de recuperar su informacion de pago!');
+    }
+  })();
+
   function getData(idFatherNode, initialValue){ //Initial value, because the number of child can be par or impar
     let fatherNode=document.getElementById(idFatherNode).children, data=[];
     for (let i=initialValue? 1 : 2; i<fatherNode.length; i+=2){
+      //I just sanitize the values. I'm not validating because I'm lazy
+      fatherNode[i].value=validator.trim(fatherNode[i].value);
+      fatherNode[i].value=validator.escape(fatherNode[i].value);
       data.push({
         name: fatherNode[i-1].textContent,
         referenceNumber: fatherNode[i].value

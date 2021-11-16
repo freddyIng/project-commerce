@@ -13,14 +13,10 @@
   </div>
 </nav>
 
-<form action="/signin" method="post" enctype="multipart/form-data">
+<form action="/admin/signin" method="post" enctype="application/json">
   <div class="mb-3">
     <label class="form-label">Introduce el nombre de tu negocio</label>
     <input type="text" class="form-control" name="commerceName" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Introduza la descripcion de su negocio</label>
-    <input class="form-control" name="descriptionOfTheCommerce" required>
   </div>
   <div class="mb-3">
     <label class="form-label">Introduzca el correo electronico del negocio</label>
@@ -36,11 +32,12 @@
   </div>
     <div class="mb-3">
     <label class="form-label">Repita la contraseña</label>
-    <input type="password" class="form-control" required>
+    <input type="password" class="form-control" required name="repeatedPassword">
   </div>
     <div class="mb-3">
     <label class="form-label">Estado donde se encuentra su negocio</label>
-    <input type="text" class="form-control" name="state">
+    <select class="form-select" id="states" name="state">
+    </select>
   </div>
   <div class="mb-3">
     <label class="form-label">Ciudad o municipio en el que se encuentra su negocio</label>
@@ -50,12 +47,44 @@
     <label class="form-label">Direccion del negocio</label>
     <input type="text" class="form-control" name="direction" requried>
   </div>
-  <div class="mb-3">
-    <label class="form-label">Introduzca una foto de su negocio</label>
-    <input type="file" class="form-control" name="commercePhoto" required>
-  </div>
-  <button type="submit" class="btn btn-success">Registrarse</button>
+  <button type="submit" class="btn btn-success" id="signin">Registrarse</button>
 </form>
+
+<script>
+  const states=[
+    'Amazonas',
+    'Anzoategui',
+    'Apure',
+    'Aragua',
+    'Barinas',
+    'Bolivar',
+    'Carabobo',
+    'Cojedes',
+    'Delta Amacuro',
+    'Falcon',
+    'Guarico',
+    'Lara',
+    'Merida',
+    'Miranda',
+    'Monagas',
+    'Nueva Esparta',
+    'Portuguesa',
+    'Sucre',
+    'Tachira',
+    'Trujillo',
+    'La Guaira',
+    'Yaracuy',
+    'Zulia'
+  ];
+  const selectStates=document.getElementById('states');
+  states.forEach(state=>{
+    let option=document.createElement('option');
+    option.value=state;
+    option.textContent=state;
+    selectStates.appendChild(option);
+  });
+
+</script>
 
 </body>
 </html>

@@ -8,9 +8,6 @@ Commerce.init({
   commerceName: {
     type: DataTypes.STRING
   },
-  descriptionOfTheCommerce: {
-    type: DataTypes.STRING
-  },
   email: {
     type: DataTypes.STRING
   },
@@ -27,9 +24,6 @@ Commerce.init({
     type: DataTypes.STRING
   },
   direction: {
-    type: DataTypes.STRING
-  },
-  commercePhotoPath: {
     type: DataTypes.STRING
   },
   paymentInformation: {

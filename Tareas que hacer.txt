@@ -3,38 +3,28 @@
 -Terminar la vista de la pagina de registro (falta añadir los estados y correspondientes municipios, y tambien hacerla 
 responsiva)
 
--Terminar la funcionalidad de registro. Terminada. Falta aplicar la validacion y sanitizacion de datos tanto del 
-lado del cliente como en el servidor), y tambien, la modificacion del estado y ciudad (seran tipo select) en el formulario
-de datos. Otra cosa: Tambien falta la verificacion por correo electronico. Usando 
+-Terminar la funcionalidad de registro. Falta la modificacion del estado y ciudad (seran tipo select) en el formulario
+de datos (en el caso del registro del administrador, el cliente no necesita proveer su estado y ciudad). 
+Otra cosa: Tambien falta la verificacion por correo electronico. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) podria enviar la verificacion. Como no espero un registro
 masivo de usuarios, entonces no necesitare pagar por el servicio que ofrece sendgrid, o peor, hacer mi propio servidor de 
 email. Por ultimo, el hash+salt de la contraseña (con bcrypt). Por supuesto, verificar que tanto el email como el nombre
 del comercio sean unicos.
 
--Terminar la funcionalidad de inventario. Falta mostrar las fotos de los productos
-y hacer que el formulario que se encarga de agregar los productos use fetch en vez de ser uno tradicional, para asi renderizar
-desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react.
+-Terminar la funcionalidad de inventario. Falta hacer que el formulario que se encarga de agregar los productos 
+use fetch en vez de ser uno tradicional, para asi renderizar
+desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react. Tambien, validar y sanitizar
+esos datos. A su vez, implementar la validacion y sanitizacion en la actualizacion de inventarios.
 
--Terminar la funcionalidad de carrito de compra y compras del cliente. Una vez terminada, lo siguiente es hacer el sistema
-de notificaciones de compra del administrador. Podria usar esa misma vista para la vista de las transacciones hechas por el cliente.
-Update: Para finalizar, me falta agregar la informacion financiera/metodos de pago y datos de los comercios. El problema
-es que no se como implementar la entrada de datos en la interfaz. 
-En fin, una vez implementada la interfaz y la logica de entrada de los datos de informacion de pago, la clase
-metodos de pago del catalogo(plantilla html) se encargara de extraer por medio de una solicitud fetch 
-tales datos del respectivo comercio, y 
-mostrarlos en el purchase modal. Una vez hecho esto, lo siguiente sera la logica de la comunicacion de eventos entre los componentes
-shoppingCart y el purchase, para que asi, una vez se confirme la transaccion de parte del cliente, los datos de la compra
-puedan ir al servidor y recibir la respuesta que confirme si la transaccion fue exitosa o fallo.
-
-UPDATE 2: Hice una implementacion basica de la interfaz de entrada de informacion financiera. Y tambien logre expresar esa informa-
--cion en el modal purchase. Ahora solo falta completar la logica de confirmacion de compra. Solo tengo que enviar la informacion
-de compra (productos, cantidades, precios), el metodo de pago que elija el usuario y el respectivo numero de trnasaccion del,
-para poder guardar esos datos en la base de datos. Ya casi termino, solo falta terminar esa logica, tendre que hacerla mañana.
-
--Terminar la funcionalidad de inicio de sesion. Terminada. Falta la validacion y sanitizacion de datos, y bcrypt para generar y
-comparar el hash de la contraseña.
 
 Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por ejemplo:
 Si un administrador agrega, actualiza o elimina un nuevo producto en su inventario, ese cambio se debe reflejar instantaneamente
-en la vista que un cliente tenga del catalogo de productos del comercio de ese administrador. Lo mismo cundo un cliente
+en la vista que un cliente tenga del catalogo de productos del comercio de ese administrador. Lo mismo cuando un cliente
 hace una compra/pedido, se confirma la compra, etc, y las respectivas notificaciones a la pagina del administrador.
+
+Veamos...Falta comprobar la lista de items al momento de que el usuario haga la compra. Si los productos que desea el usuario
+estan disponbiles, entonces al hacer la transaccion, se resta la cantidad en el inventario de la tienda.
+Tambien... Me pregunto si deberia implementar estados de la compra/pedido del cliente. Por ejemplo, que tenga como
+estados: pendiente, cancelado, confirmado y entregado. Tambien, podria usar la opcion de delivery. Otra cosa que
+deberia agregar serian mas datos y opciones al momento de pagar. Por ejemplo, el rif o la cedula de la cuenta del comercio.
+El numero (para pago movil), etc...
