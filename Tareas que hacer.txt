@@ -1,4 +1,4 @@
--Terminar la vista index. (casi terminada, falta hacerla responsiva)
+-Definir la vista index, añadir mas colores y estilos a las vistas de la aplicacion en general.
 
 -Terminar la vista de la pagina de registro (falta añadir los estados y correspondientes municipios, y tambien hacerla 
 responsiva)
@@ -6,15 +6,11 @@ responsiva)
 -Terminar la funcionalidad de registro. Falta la modificacion del estado y ciudad (seran tipo select) en el formulario
 de datos (en el caso del registro del administrador, el cliente no necesita proveer su estado y ciudad). 
 Otra cosa: Tambien falta la verificacion por correo electronico. Usando 
-nodemailer y una cuenta de correo del negocio (como outlook?) podria enviar la verificacion. Como no espero un registro
-masivo de usuarios, entonces no necesitare pagar por el servicio que ofrece sendgrid, o peor, hacer mi propio servidor de 
-email. Por ultimo, el hash+salt de la contraseña (con bcrypt). Por supuesto, verificar que tanto el email como el nombre
-del comercio sean unicos.
+nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid.
 
 -Terminar la funcionalidad de inventario. Falta hacer que el formulario que se encarga de agregar los productos 
 use fetch en vez de ser uno tradicional, para asi renderizar
-desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react. Tambien, validar y sanitizar
-esos datos. A su vez, implementar la validacion y sanitizacion en la actualizacion de inventarios.
+desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react.
 
 
 Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por ejemplo:
