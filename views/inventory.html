@@ -28,28 +28,6 @@
 
 <h4>Modulo de inventario. Aqui podras añadir, ver, editar y eliminar productos del negocio</h4>
 
-<form method="POST" action="/admin/add-product" class="addProduct" enctype="multipart/form-data">
-  <div class="mb-3">
-    <label  class="form-label">Descripcion/Nombre del producto</label>
-    <input type="text" class="form-control" name="productName" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Clasificacion/Categoria del producto</label>
-    <input type="text" class="form-control" name="classification" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Cantidad disponible</label>
-    <input type="number" class="form-control" name="amount" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Precio</label>
-    <input type="number" class="form-control" name="price" required>
-  </div>
-  <label class="form-label">Imagen/Foto del producto</label>
-  <input type="file" name="productPhoto" required>
-  <button type="submit" class="btn btn-success">Agregar Producto</button>
-</form>
-
 <div id="root"> 
 </div>
 
@@ -58,6 +36,127 @@
 <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
 <script type="text/babel">
+    const eventBus={
+    on(event, callback){
+      document.addEventListener(event, (e) => callback(e.detail));
+    },
+    dispatch(event, data){
+      document.dispatchEvent(new CustomEvent(event, { detail: data }));
+    }
+  }
+
+  class AddProductForm extends React.Component{
+    constructor(props){
+      super(props)
+      this.fileInput=React.createRef()
+      this.state={
+        name: '',
+        classification: '',
+        availableQuantity: '',
+        price: ''
+      }
+      this.changeProductName=this.changeProductName.bind(this)
+      this.changeProductClassification=this.changeProductClassification.bind(this)
+      this.changeProductAvailableQuantity=this.changeProductAvailableQuantity.bind(this)
+      this.changeProductPrice=this.changeProductPrice.bind(this)
+      this.sendData=this.sendData.bind(this)
+    }
+
+    changeProductName(event){
+      this.setState({name: event.target.value})
+    }
+
+    changeProductClassification(event){
+      this.setState({classification: event.target.value})
+    }
+
+    changeProductAvailableQuantity(event){
+      this.setState({availableQuantity : event.target.value})
+    }
+
+    changeProductPrice(event){
+      this.setState({price : event.target.value})
+    }
+
+    async sendData(){
+      if (this.state.name==='' || this.state.classification==='' || this.state.classification==='' || this.state.availableQuantity===''
+      || this.state.price==='' || this.fileInput.current.files[0].name===''){
+        alert('Todos los campos son requeridos al momento de agregar un producto! Por favor, llene los campos campos correspondientes,incluida la carga de la correspondiente foto del producto.')
+        return
+      }
+      let data={
+        productName: this.state.name,
+        classification: this.state.classification,
+        amount: this.state.availableQuantity,
+        price: this.state.price,
+      }
+      let request=await fetch('/admin/add-product/data', {method: 'POST', headers: {'Content-Type': 'application/json'}, 
+  	    body: JSON.stringify(data)})
+      let response=await request.json()
+      if (response.message==='Sucessfull operation'){
+        let photo=new FormData()
+        photo.append('productPhoto', this.fileInput.current.files[0])
+        request=await fetch('/admin/add-product/photo', {method: 'POST', body: photo})
+  	    response=await request.json()
+        if (response.message==='Sucessfull operation'){
+          /*Apart from change the state of the inputs of the forms (and the file), the event that render the new item in the list
+          of products is fired*/
+          let data={
+            productName: this.state.name,
+            classification: this.state.classification,
+            availableQuantity: this.state.availableQuantity,
+            price: this.state.price,
+            productPhotoPath: response.photoPath
+          }
+          eventBus.dispatch('addItemToTheList', data)
+          alert('Se ha agregado el producto con exito!')
+          this.setState({
+            name: '',
+            classification: '',
+            availableQuantity: '',
+            price: ''
+          })
+          //I guess this will cause problems, because is neither a state or a prop, so I'm not sure if can be changed
+          //this.fileInput=React.createRef() 
+        } else{
+          alert(response.message)
+        }
+      } else{
+        alert('Ha ocurrido un error al agregar el producto!');
+      }
+    }
+
+
+    /*So I make double fetch petition. The first with the data of the new product, with content type application/json,
+	and the second with the photo of the producto, with content type mulfipart/form-data*/
+
+    render(){
+      return (
+        <div>
+          <div className="mb-3">
+    	    <label  className="form-label">Descripcion/Nombre del producto</label>
+    		<input type="text" className="form-control" value={this.state.name} onChange={this.changeProductName} name="a"/>
+  		  </div>
+  		  <div className="mb-3">
+    	    <label className="form-label">Clasificacion/Categoria del producto</label>
+    		<input type="text" className="form-control" value={this.state.classification} onChange={this.changeProductClassification} name="b"/>
+  		  </div>
+  		  <div className="mb-3">
+    	    <label className="form-label">Cantidad disponible</label>
+      		<input type="number" className="form-control" value={this.state.availableQuantity} onChange={this.changeProductAvailableQuantity} name="c"/>
+   		  </div>
+  		  <div className="mb-3">
+    	    <label className="form-label">Precio</label>
+            <input type="number" className="form-control" value={this.state.price} onChange={this.changeProductPrice} name="d"/>
+          </div>
+  		  <label className="form-label">Imagen/Foto del producto</label>
+  		  <input type="file" ref={this.fileInput} id="e"/>
+  		  <button className="btn btn-success" onClick={this.sendData} id="f">Agregar Producto</button>
+        </div>
+      )
+    }
+  }
+
   async function getProducts(){
     let request=await fetch('/admin/get-products', {method: 'GET', headers: {'Content-Type': 'application/json'}});
     let response=await request.json();
@@ -214,10 +313,35 @@
       }
     }
 
+    //So, the list, instead of props, will have states, because, the list will be update when the admin add a product
+
     class List extends React.Component {
+      
+      constructor(props){
+        super(props)
+        this.state={
+          products: this.props.products
+        }
+        this.additem=this.addItem.bind(this)
+      }
+
+      componentDidMount(){
+        eventBus.on('addItemToTheList', data =>{
+          this.addItem(data)
+        })
+      }
+
+     addItem(data){
+       let newProductsState=this.state.products
+       newProductsState.push(data)
+       this.setState({
+         products: newProductsState
+       })
+     }
+
       render(){
         return (
-          <ul className="list-group">{this.props.products.map((product)=>{
+          <ul className="list-group">{this.state.products.map((product)=>{
            return <Item key={product.productName} 
            nameContainer={textContainer('Nombre', product.productName)} 
            name={product.productName} 
@@ -235,9 +359,12 @@
 
     let data=await getProducts();
     const list=<List products={data.products}/>
-
+    const addProductForm=<AddProductForm />
     ReactDOM.render(
-      list,
+      <div>
+        {addProductForm}
+        {list}
+      </div>,
       document.getElementById('root')
     );
   })();

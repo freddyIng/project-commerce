@@ -8,9 +8,8 @@ de datos (en el caso del registro del administrador, el cliente no necesita prov
 Otra cosa: Tambien falta la verificacion por correo electronico. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid.
 
--Terminar la funcionalidad de inventario. Falta hacer que el formulario que se encarga de agregar los productos 
-use fetch en vez de ser uno tradicional, para asi renderizar
-desde el cliente los cambios. Probablemente deba hacer ese formulario un componente de react.
+En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
+no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
 
 
 Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por ejemplo:

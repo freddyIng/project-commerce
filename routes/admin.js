@@ -115,7 +115,7 @@ router.get('/get-products', async (req, res)=>{
 
 const validator=require('validator');
 
-router.post('/add-product', upload.single('productPhoto'), async (req, res)=>{
+/*router.post('/add-product', upload.single('productPhoto'), async (req, res)=>{
   req.body.productName=validator.trim(req.body.productName); req.body.productName=validator.escape(req.body.productName);
   req.body.classification=validator.trim(req.body.classification); req.body.classification=validator.escape(req.body.classification);
   req.body.amount=validator.trim(req.body.amount); req.body.amount=validator.escape(req.body.amount);
@@ -150,9 +150,58 @@ router.post('/add-product', upload.single('productPhoto'), async (req, res)=>{
   	}
     return res.json({result: 'Debes subir una foto/imagen (archivo png o jpg), no un tipo de archivo diferente.'});
   }
+});*/
+
+router.post('/add-product/data', async (req, res)=>{
+  req.body.productName=validator.trim(req.body.productName); req.body.productName=validator.escape(req.body.productName);
+  req.body.classification=validator.trim(req.body.classification); req.body.classification=validator.escape(req.body.classification);
+  req.body.amount=validator.trim(req.body.amount); req.body.amount=validator.escape(req.body.amount);
+  req.body.price=validator.trim(req.body.price); req.body.price=validator.escape(req.body.price);
+  try{
+    await stock.create({commerceName: req.user, productName: req.body.productName, classification: req.body.classification, 
+      availableQuantity: req.body.amount, price: req.body.price});
+      res.json({message: 'Sucessfull operation'});
+  } catch(err){
+    res.json({message: 'Failed operation!'});
+  }
+});
+
+router.post('/add-product/photo', upload.single('productPhoto'), async (req, res)=>{
+  /*Apart from the photo, I get the product and the commerce name. If the file is a image, then I save the path in database.
+  If not, then I delete the image and the product in the database*/
+  if (req.file.mimetype==='image/png' || req.file.mimetype==='image/jpeg'){
+    try{
+      await fs.opendir(`commerce-photos/product-photos/${req.user}`);
+    } catch(err){
+      //Should I use the try catch for handle a possible error in the creation directory statement?
+      err.code==='ENOENT'? await fs.mkdir(`commerce-photos/product-photos/${req.user}`) : console(err);  
+    }
+    try{
+      await fs.rename(`commerce-photos/product-photos/${req.file.filename}`, `commerce-photos/product-photos/${req.user}/${req.file.filename}`);
+      await commerce.update({productPhotoPath: `/product-photos/${req.user}/${req.file.filename}`}, {
+        where: {
+          commerceName: req.user
+        }
+      });
+      return res.json({message: 'Sucessfull operation', photoPath: `/product-photos/${req.user}/${req.file.filename}`});
+    } catch(err){
+      console.log(err);
+      return res.json({message: 'Ha ocurrido un error al momento de guardar tu foto en el servidor.'});
+    }
+  } else{
+    try{
+      await fs.unlink(`./commerce-photos/product-photos/${req.file.filename}`);
+    } catch(err){
+      console.log(err);
+      console.error('No se ha podido eliminar el archivo!');
+    } finally{
+      return res.json({message: 'Debes subir una foto/imagen (archivo png o jpg), no un tipo de archivo diferente.'});
+    }
+  }
 });
 
 router.delete('/delete-product', async (req, res)=>{
+  //Still need to delete the photo
   try{
     await stock.destroy({
       where: {
