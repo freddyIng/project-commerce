@@ -5,11 +5,17 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link href="/css/bootstrap.min.css" rel="stylesheet">
   <link href="index.css" rel="stylesheet">
+  <style type="text/css">
+  	#title{
+  	  display: flex;
+  	  justify-content: center;
+  	}
+  </style>
 </head>
 <body>
 
 
-  <nav class="navbar navbar-dark bg-dark">
+  <!--<nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
       <form class="d-flex">
@@ -17,16 +23,16 @@
         <button class="btn btn-outline-success" type="submit">Buscar</button>
       </form>
   </div>
-</nav>
+</nav>-->
 
 
   <script src="/js/bootstrap.bundle.min.js"></script>
-<img src="wallpaper.png" alt="wallpaper">
-<div id="login">
-  
-  
+
+    <h1 id="title"><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h1>
+
+<div id="login"> 
   <form action="/login" method="POST">
-  	<p>Inicia sesion para empezar a comprar!</p>
+  	<p>Inicia sesion para empezar a comprar en los comercios afiliados!</p>
     <div class="mb-3">
       <label class="form-label">Numero de cedula</label>
       <input class="form-control" name="username">

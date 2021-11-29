@@ -1,11 +1,16 @@
 body{
   font-family: monospace;
+  /*background-image: url("../nueva.jpg");*/
+  background-color: #252850;
+  background-size: cover;
+  color: white;
 }
 
 #login{
  display: flex;
- justify-content: space-around;
+ justify-content: center;
  align-items: center;
+ height: 70vh;
 }
 
 
@@ -17,12 +22,4 @@ img{
   border-width: 10px;
   border-color: #804000;
   border-radius: 20px;
-}
-
-
-
-#lastInformation{
-  background: black;
-  display: flex;
-  justify-content: space-around;
 }

@@ -1,5 +1,3 @@
--Definir la vista index, añadir mas colores y estilos a las vistas de la aplicacion en general.
-
 -Terminar la vista de la pagina de registro (falta añadir los estados y correspondientes municipios, y tambien hacerla 
 responsiva)
 
@@ -11,15 +9,28 @@ nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio
 En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
 
+Usar validator pra sanitizar datos en el lado del cliente (inventario) al momento de renderizar el producto con react, ya que asi 
+evitare ataques de inyeccion de javascript.
+
+Falta guardar la informacion relacionada al carrito de compra en las cookies/informacion de sesion del usuario.
+
+Falta comprobar la lista de items al momento de que el usuario haga la compra. Si los productos que desea el usuario
+estan disponbiles, entonces al hacer la transaccion, se resta la cantidad en el inventario de la tienda.
+
+Implementar estados de la compra/pedido del cliente, por ejemplo ejemplo:
+estados: pendiente, cancelado, confirmado y entregado. Tambien, podria tener un atributo adicional introducido por el cliente,
+el cual sera si la entrega es presencial (el cliente va al comercio) o delivery. En el caso de delivery, el cliente debera
+proveer su direccion, pero ya hay problemas respecto a este enfoque.
+El numero (para pago movil), etc...
+
 
 Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por ejemplo:
-Si un administrador agrega, actualiza o elimina un nuevo producto en su inventario, ese cambio se debe reflejar instantaneamente
-en la vista que un cliente tenga del catalogo de productos del comercio de ese administrador. Lo mismo cuando un cliente
+Cuando un cliente
 hace una compra/pedido, se confirma la compra, etc, y las respectivas notificaciones a la pagina del administrador.
+Cuando un administrador confirma o rechaza la compra del cliente, el cliente recibe una notificacion.
 
-Veamos...Falta comprobar la lista de items al momento de que el usuario haga la compra. Si los productos que desea el usuario
-estan disponbiles, entonces al hacer la transaccion, se resta la cantidad en el inventario de la tienda.
-Tambien... Me pregunto si deberia implementar estados de la compra/pedido del cliente. Por ejemplo, que tenga como
-estados: pendiente, cancelado, confirmado y entregado. Tambien, podria usar la opcion de delivery. Otra cosa que
-deberia agregar serian mas datos y opciones al momento de pagar. Por ejemplo, el rif o la cedula de la cuenta del comercio.
-El numero (para pago movil), etc...
+Finalmente... El metodo de pago automatizado: C2P, comercio a personas. Esta es la clave. Por ahora, intentare experimentar
+con la plataforma del banco de venezuela, e intentar hacer una extension de navegador que automatize ese proceso.
+Mercantil tiene una api, por cierto.
+
+

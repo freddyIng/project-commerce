@@ -96,6 +96,7 @@
       if (response.message==='Sucessfull operation'){
         let photo=new FormData()
         photo.append('productPhoto', this.fileInput.current.files[0])
+        photo.append('productName', this.state.name)
         request=await fetch('/admin/add-product/photo', {method: 'POST', body: photo})
   	    response=await request.json()
         if (response.message==='Sucessfull operation'){
@@ -134,24 +135,24 @@
       return (
         <div>
           <div className="mb-3">
-    	    <label  className="form-label">Descripcion/Nombre del producto</label>
-    		<input type="text" className="form-control" value={this.state.name} onChange={this.changeProductName} name="a"/>
+    	    <p>Descripcion/Nombre del producto:</p>
+    		<input type="text" value={this.state.name} onChange={this.changeProductName} name="a"/>
   		  </div>
   		  <div className="mb-3">
-    	    <label className="form-label">Clasificacion/Categoria del producto</label>
-    		<input type="text" className="form-control" value={this.state.classification} onChange={this.changeProductClassification} name="b"/>
+    	    <p>Clasificacion/Categoria del producto:</p>
+    		<input type="text" value={this.state.classification} onChange={this.changeProductClassification} name="b"/>
   		  </div>
   		  <div className="mb-3">
-    	    <label className="form-label">Cantidad disponible</label>
-      		<input type="number" className="form-control" value={this.state.availableQuantity} onChange={this.changeProductAvailableQuantity} name="c"/>
+    	    <p>Cantidad disponbile:</p>
+      		<input type="number" value={this.state.availableQuantity} onChange={this.changeProductAvailableQuantity} name="c"/>
    		  </div>
   		  <div className="mb-3">
-    	    <label className="form-label">Precio</label>
-            <input type="number" className="form-control" value={this.state.price} onChange={this.changeProductPrice} name="d"/>
+    	    <p>Precio:</p>
+            <input type="number" value={this.state.price} onChange={this.changeProductPrice} name="d"/>
           </div>
-  		  <label className="form-label">Imagen/Foto del producto</label>
-  		  <input type="file" ref={this.fileInput} id="e"/>
-  		  <button className="btn btn-success" onClick={this.sendData} id="f">Agregar Producto</button>
+  		  <label className="form-label">Imagen/Foto del producto: </label>
+  		  <input type="file" ref={this.fileInput} name="e"/>
+  		  <button className="btn btn-success" onClick={this.sendData} name="f">Agregar Producto</button>
         </div>
       )
     }
@@ -313,7 +314,30 @@
       }
     }
 
-    //So, the list, instead of props, will have states, because, the list will be update when the admin add a product
+    class SearchProduct extends React.Component {
+      constructor(props){
+        super(props)
+        this.state={
+          characters: ''
+        }
+        this.searchProductsInTheList=this.searchProductsInTheList.bind(this)
+      }
+
+      async searchProductsInTheList(event){
+        await this.setState({characters: event.target.value})
+        eventBus.dispatch('searchProducts', {characters: this.state.characters})
+      }
+
+      render(){
+        return(
+          <div id="searchProduct">
+            <input value={this.state.characters} onChange={this.searchProductsInTheList} type="search" aria-label="Search" placeholder="Buscar producto"/>
+          </div>
+        )
+      }
+    }
+
+    //So, the list, instead of props, will have states, because, the list will be update when the admin add a product (or search a product)
 
     class List extends React.Component {
       
@@ -328,6 +352,17 @@
       componentDidMount(){
         eventBus.on('addItemToTheList', data =>{
           this.addItem(data)
+        })
+
+        eventBus.on('searchProducts', data=>{
+          const characters=new RegExp(`^${data.characters}`)
+          let result=[]
+          this.props.products.forEach(product=>{
+            if (characters.test(product.productName)){
+              result.push(product)
+            }
+          })
+          this.setState({products: result})
         })
       }
 
@@ -358,11 +393,13 @@
     }
 
     let data=await getProducts();
-    const list=<List products={data.products}/>
     const addProductForm=<AddProductForm />
+    const searchProduct=<SearchProduct />
+    const list=<List products={data.products}/>
     ReactDOM.render(
       <div>
         {addProductForm}
+        {searchProduct}
         {list}
       </div>,
       document.getElementById('root')

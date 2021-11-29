@@ -22,7 +22,7 @@ router.post('/signin',
   body('name').isLength({min: 5, max: 30}).trim().escape(), //min 5 because the short name that I remember is "ana" (max 30 I don't know :p)
   body('lastName').isLength({min: 5, max: 30}).trim().escape(),
   body('dni').isNumeric().isLength({min: 6, max: 8}).trim().escape(),
-  body('password').isLength({min: 8, max: 20}).trim().escape(),
+  body('password').isLength({min: 6, max: 20}).trim().escape(),
   body('email').isEmail().normalizeEmail().trim().escape(),
   body('phoneNumber').isNumeric().trim().escape()
   , async (req, res)=>{

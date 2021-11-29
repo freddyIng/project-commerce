@@ -167,6 +167,7 @@ router.post('/add-product/data', async (req, res)=>{
 });
 
 router.post('/add-product/photo', upload.single('productPhoto'), async (req, res)=>{
+  req.body.productName=validator.trim(req.body.productName); req.body.productName=validator.escape(req.body.productName);
   /*Apart from the photo, I get the product and the commerce name. If the file is a image, then I save the path in database.
   If not, then I delete the image and the product in the database*/
   if (req.file.mimetype==='image/png' || req.file.mimetype==='image/jpeg'){
@@ -178,9 +179,10 @@ router.post('/add-product/photo', upload.single('productPhoto'), async (req, res
     }
     try{
       await fs.rename(`commerce-photos/product-photos/${req.file.filename}`, `commerce-photos/product-photos/${req.user}/${req.file.filename}`);
-      await commerce.update({productPhotoPath: `/product-photos/${req.user}/${req.file.filename}`}, {
+      await stock.update({productPhotoPath: `/product-photos/${req.user}/${req.file.filename}`}, {
         where: {
-          commerceName: req.user
+          commerceName: req.user,
+          productName: req.body.productName
         }
       });
       return res.json({message: 'Sucessfull operation', photoPath: `/product-photos/${req.user}/${req.file.filename}`});
