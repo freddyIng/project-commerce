@@ -22,8 +22,7 @@
       return (
           <nav className="navbar navbar-dark bg-dark">
            <div className="container-fluid">
-             <a className="navbar-brand" href="/"><h4><span style={{color: 'yellow'}}>Vene</span><span style={{color: 'blue'}}>Comer</span><span style={{color: 'red'}}>cios</span></h4></a>
-             {this.props.userType==='customer'? <a href="/customer/home-client">Busqueda</a> :  <div><a href="/admin/inventory">Inventario</a><a href="/admin/edit-payment-information">Metodos de pago</a></div>}
+             {this.props.userType==='customer'? <a href="/customer/catalogue">Catalogo</a> :  <div><a href="/admin/inventory">Inventario</a><a href="/admin/edit-payment-information">Metodos de pago</a></div>}
             <a href={this.props.userType==='customer'? '/customer/purchases' : '/admin/purchases'}>Tus transacciones</a>
             <a href={this.props.userType==='customer'? 'customer/account-settings' : '/admin/account-settings'}>Configuracion de la cuenta</a>
             <a href={this.props.userType==='customer'? '/customer/logout' : '/admin/logout'}>Salir</a>

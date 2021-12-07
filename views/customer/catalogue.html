@@ -69,7 +69,7 @@
     }
 
     async getData(){
-      let request=await fetch('/customer/catalogue/payment-information', {method: 'GET', headers: 
+      let request=await fetch(`/customer/catalogue/payment-information?commerceName=${this.shopName}`, {method: 'GET', headers: 
         {'Content-Type': 'application/json'}})
       let response=await request.json()
       if (response.message==='Sucessfull operation'){
@@ -85,8 +85,9 @@
       return this.data
     }
   }
-  async function getProducts(){
-    let request=await fetch('/customer/catalogue/products', {method: 'GET', headers: {'Content-Type': 'application/json'}});
+  let commerceName=window.location.search.replace('?commerceName=', '')
+  async function getProducts(shopName){
+    let request=await fetch(`/customer/catalogue/products?commerceName=${shopName}`, {method: 'GET', headers: {'Content-Type': 'application/json'}});
     let response=await request.json();
     return {products: response.result};
   }
@@ -345,6 +346,7 @@
 
       async transaction(purchaseData){
         let data={
+          commerceName: this.props.shopName,
           items: purchaseData,
           totalPrice: this.state.totalPrice,
           paymentMethod: this.state.methodName,
@@ -373,7 +375,7 @@
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div className="modal-body" id="purchaseBody">
-      	<p>Estos son los metodos de pago y los datos usados por nombre del comercio. Haz la respectiva transaccion con alguno de estos metodos
+      	<p>Estos son los metodos de pago y los datos usados por {this.props.shopName}. Haz la respectiva transaccion con alguno de estos metodos
       	y luego confirma la transaccion</p>
         {this.props.paymentMethods.map(method=>{
           return <p key={method.name}>
@@ -405,7 +407,7 @@
     let data=await getProducts(commerceName)
     let paymentData=new paymentInformation(commerceName)
     const cart=<ShoppingCart />
-    const purchase=<Purchase paymentMethods={await paymentData.getData()}/>
+    const purchase=<Purchase paymentMethods={await paymentData.getData()} shopName={commerceName}/>
     const searchProduct=<SearchProduct />
     const list=<List products={data.products} />
     ReactDOM.render(

@@ -8,6 +8,8 @@ module.exports={
     sequelize=new Sequelize(process.env.DB_DATABASE, process.env.DB_user, process.env.DB_PASSWORD,{
       host: process.env.DB_HOST,
       dialect: 'postgres',
+      quoteIdentifiers: false,
+      freezeTableName: true,
       pool: {
         max: 100,
         min: 0,

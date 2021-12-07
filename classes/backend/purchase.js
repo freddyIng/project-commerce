@@ -5,9 +5,6 @@ const {DataTypes, Model}=require('sequelize');
 
 class Purchase extends Model {};
 Purchase.init({
-  commerceName: {
-    type: DataTypes.STRING
-  },
   customerDni: {
     type: DataTypes.INTEGER
   },
@@ -25,7 +22,7 @@ Purchase.init({
   },
 }, {
   sequelize,
-  modelName: 'Purchase'
+  modelName: 'purchase'
 });
 
 module.exports=Purchase;

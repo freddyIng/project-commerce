@@ -17,7 +17,6 @@
 
 <nav class="navbar navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/"><h4><span style="color: yellow">Vene</span><span style="color: blue">Comer</span><span style="color: red">cios</span></h4></a>
     <a href="/admin/inventory">Inventario</a>
     <a href="/admin/edit-payment-information">Metodos de pago</a>
     <a href="/admin/purchases">Compras de tus clientes</a>
@@ -51,12 +50,10 @@
       this.fileInput=React.createRef()
       this.state={
         name: '',
-        classification: '',
         availableQuantity: '',
         price: ''
       }
       this.changeProductName=this.changeProductName.bind(this)
-      this.changeProductClassification=this.changeProductClassification.bind(this)
       this.changeProductAvailableQuantity=this.changeProductAvailableQuantity.bind(this)
       this.changeProductPrice=this.changeProductPrice.bind(this)
       this.sendData=this.sendData.bind(this)
@@ -64,10 +61,6 @@
 
     changeProductName(event){
       this.setState({name: event.target.value})
-    }
-
-    changeProductClassification(event){
-      this.setState({classification: event.target.value})
     }
 
     changeProductAvailableQuantity(event){
@@ -79,14 +72,13 @@
     }
 
     async sendData(){
-      if (this.state.name==='' || this.state.classification==='' || this.state.classification==='' || this.state.availableQuantity===''
+      if (this.state.name==='' || this.state.availableQuantity===''
       || this.state.price==='' || this.fileInput.current.files[0].name===''){
         alert('Todos los campos son requeridos al momento de agregar un producto! Por favor, llene los campos campos correspondientes,incluida la carga de la correspondiente foto del producto.')
         return
       }
       let data={
         productName: this.state.name,
-        classification: this.state.classification,
         amount: this.state.availableQuantity,
         price: this.state.price,
       }
@@ -104,7 +96,6 @@
           of products is fired*/
           let data={
             productName: this.state.name,
-            classification: this.state.classification,
             availableQuantity: this.state.availableQuantity,
             price: this.state.price,
             productPhotoPath: response.photoPath
@@ -113,7 +104,6 @@
           alert('Se ha agregado el producto con exito!')
           this.setState({
             name: '',
-            classification: '',
             availableQuantity: '',
             price: ''
           })
@@ -137,10 +127,6 @@
           <div className="mb-3">
     	    <p>Descripcion/Nombre del producto:</p>
     		<input type="text" value={this.state.name} onChange={this.changeProductName} name="a"/>
-  		  </div>
-  		  <div className="mb-3">
-    	    <p>Clasificacion/Categoria del producto:</p>
-    		<input type="text" value={this.state.classification} onChange={this.changeProductClassification} name="b"/>
   		  </div>
   		  <div className="mb-3">
     	    <p>Cantidad disponbile:</p>
@@ -205,9 +191,6 @@
           nameContainer: this.props.nameContainer,
           name: this.props.name,
           inputName: this.props.name,
-          classificationContainer: this.props.classificationContainer,
-          classification: this.props.classification,
-          inputClassification: this.props.classification,
           availableQuantityContainer: this.props.availableQuantityContainer,
           availableQuantity: this.props.availableQuantity,
           inputAvailableQuantity: this.props.availableQuantity,
@@ -226,7 +209,6 @@
       update(){
         this.setState({
           nameContainer: inputContainer('Nombre', this.state.name, 'inputName', this.handleInputChange),
-          classificationContainer: inputContainer('Clasificacion', this.state.classification, 'inputClassification', this.handleInputChange),
           availableQuantityContainer: inputContainer('Cantidad disponible', this.state.availableQuantity, 'inputAvailableQuantity', this.handleInputChange),
           priceContainer: inputContainer('Precio', this.state.price, 'inputPrice', this.handleInputChange),
           buttonsState: <div> 
@@ -244,19 +226,17 @@
       }
 
       async confirmUpdate(){
-        let request=await fetch('/admin/update-product', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.inputName, classification: this.state.inputClassification, availableQuantity:
+        let request=await fetch('/admin/update-product', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.inputName, availableQuantity:
           this.state.inputAvailableQuantity, price: this.state.inputPrice})});
         let response=await request.json();
         if (response.result==='Operacion exitosa!'){
           this.setState({
             name: this.state.inputName,
-            classification: this.state.inputClassification,
             availableQuantity: this.state.inputAvailableQuantity,
             price: this.state.inputPrice
           })
           this.setState({
           nameContainer: textContainer('Nombre', this.state.name),
-          classificationContainer: textContainer('Clasificacion', this.state.classification),
           availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
           priceContainer: textContainer('Precio', this.state.price),
           buttonsState: <div>
@@ -275,8 +255,6 @@
         this.setState({
           nameContainer: textContainer('Nombre', this.state.name),
           inputName: this.state.name,
-          classificationContainer: textContainer('Clasificacion', this.state.classification),
-          inputClassification: this.state.classification,
           availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
           inputAvailableQuantity: this.state.availableQuantity,
           priceContainer: textContainer('Precio', this.state.price),
@@ -289,7 +267,8 @@
       }
 
       async delete(){
-        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.name})})
+        console.log(this.state.src)
+        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.name, photoPath: this.state.src})})
         let response=await request.json()
         if (response.result==='El producto ha sido eliminado!'){
           alert('El producto ha sido eliminado!')
@@ -302,7 +281,6 @@
       render(){
         let item=<li className="list-group-item"> <div>
             {this.state.nameContainer} 
-            {this.state.classificationContainer} 
             {this.state.availableQuantityContainer} 
             {this.state.priceContainer}
             <img src={this.state.src} alt="product photo"/> 
@@ -380,8 +358,6 @@
            return <Item key={product.productName} 
            nameContainer={textContainer('Nombre', product.productName)} 
            name={product.productName} 
-           classificationContainer={textContainer('Clasificacion', product.classification)}
-           classification={product.classification}
            availableQuantityContainer={textContainer('Cantidad disponible', product.availableQuantity)}
            availableQuantity={product.availableQuantity}
            priceContainer={textContainer('Precio', product.price)}

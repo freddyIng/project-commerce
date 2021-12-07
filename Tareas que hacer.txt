@@ -1,10 +1,9 @@
--Terminar la vista de la pagina de registro (falta añadir los estados y correspondientes municipios, y tambien hacerla 
-responsiva)
+-Modificar la base de datos y las vistas en general para que sea solo un comercio.
 
--Terminar la funcionalidad de registro. Falta la modificacion del estado y ciudad (seran tipo select) en el formulario
-de datos (en el caso del registro del administrador, el cliente no necesita proveer su estado y ciudad). 
-Otra cosa: Tambien falta la verificacion por correo electronico. Usando 
-nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid.
+-Falta la verificacion por correo electronico de clientes. Usando 
+nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
+asi debido a la funcionalidad de recuperacion de contraseña, ya que enviarla via correo al usuario es el estandar.
+Pero... aun asi, podria implementar otro metodo, algo asi como preguntas aleatorias de seguridad, etc.
 
 En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
@@ -17,7 +16,7 @@ Falta guardar la informacion relacionada al carrito de compra en las cookies/inf
 Falta comprobar la lista de items al momento de que el usuario haga la compra. Si los productos que desea el usuario
 estan disponbiles, entonces al hacer la transaccion, se resta la cantidad en el inventario de la tienda.
 
-Implementar estados de la compra/pedido del cliente, por ejemplo ejemplo:
+Implementar estados de la compra/pedido del cliente, por ejemplo:
 estados: pendiente, cancelado, confirmado y entregado. Tambien, podria tener un atributo adicional introducido por el cliente,
 el cual sera si la entrega es presencial (el cliente va al comercio) o delivery. En el caso de delivery, el cliente debera
 proveer su direccion, pero ya hay problemas respecto a este enfoque.
@@ -28,9 +27,4 @@ Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por eje
 Cuando un cliente
 hace una compra/pedido, se confirma la compra, etc, y las respectivas notificaciones a la pagina del administrador.
 Cuando un administrador confirma o rechaza la compra del cliente, el cliente recibe una notificacion.
-
-Finalmente... El metodo de pago automatizado: C2P, comercio a personas. Esta es la clave. Por ahora, intentare experimentar
-con la plataforma del banco de venezuela, e intentar hacer una extension de navegador que automatize ese proceso.
-Mercantil tiene una api, por cierto.
-
 

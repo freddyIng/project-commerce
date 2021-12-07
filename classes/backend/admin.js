@@ -3,35 +3,21 @@ const dbConnector=require(connectionPoolPath+'/connection-pool.js');
 const sequelize=dbConnector.getPool();
 const {DataTypes, Model}=require('sequelize');
 
-class Commerce extends Model {};
-Commerce.init({
-  commerceName: {
+class Admin extends Model {};
+Admin.init({
+  username: {
     type: DataTypes.STRING
-  },
-  email: {
-    type: DataTypes.STRING
-  },
-  phoneNumber: {
-    type: DataTypes.BIGINT
   },
   password: {
-    type: DataTypes.STRING
-  },
-  state: {
-    type: DataTypes.STRING
-  },
-  city: {
-    type: DataTypes.STRING
-  },
-  direction: {
     type: DataTypes.STRING
   },
   paymentInformation: {
     type: DataTypes.ARRAY(DataTypes.JSONB)
   }
 }, {
+  timestamps: false,
   sequelize,
-  modelName: 'Commerce'
+  modelName: 'admin'
 });
 
-module.exports=Commerce;
+module.exports=Admin;

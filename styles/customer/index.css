@@ -1,0 +1,17 @@
+body{
+  font-family: monospace;
+}
+
+#login{
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ height: 70vh;
+}
+
+
+img{
+  margin: 1em;
+  max-width: 100%;
+  height: auto;
+}

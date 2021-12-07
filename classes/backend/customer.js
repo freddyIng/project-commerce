@@ -6,27 +6,16 @@ const {DataTypes, Model}=require('sequelize');
 
 class Customer extends Model{};
 Customer.init({
-  name: {
-    type: DataTypes.STRING
-  },
-  lastName: {
-    type: DataTypes.STRING
-  },
   dni: {
     type: DataTypes.INTEGER
   },
   password: {
     type: DataTypes.STRING
-  },
-  email: {
-    type: DataTypes.STRING
-  },
-  phoneNumber: {
-    type: DataTypes.BIGINT
   }
 }, {
+     timestamps: false,
      sequelize,
-     modelName: 'Customer'}
+     modelName: 'customer'}
 );
 
 module.exports=Customer;

@@ -7,13 +7,7 @@ const {DataTypes, Model}=require('sequelize');
 
 class Stock extends Model{};
 Stock.init({
-  commerceName: {
-    type: DataTypes.STRING
-  },
   productName: {
-    type: DataTypes.STRING
-  },
-  classification: {
     type: DataTypes.STRING
   },
   availableQuantity: {
@@ -26,8 +20,9 @@ Stock.init({
     type: DataTypes.STRING
   }
 }, {
+  timestamps: false,
   sequelize,
-  modelName: 'Stock'
+  modelName: 'stock'
 });
 
 module.exports=Stock;

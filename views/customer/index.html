@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/customer/index.css" rel="stylesheet">
+  <style type="text/css">
+  	#title{
+  	  display: flex;
+  	  justify-content: center;
+  	}
+
+    .container{
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <script src="/js/bootstrap.bundle.min.js"></script>
+
+<div class="container">
+  <h1>Nombre del comercio</h1>
+  <div > 
+    <form action="/login" method="POST">
+      <div class="mb-3">
+        <input name="username" placeholder="Numero de cedula">
+      </div>
+      <div class="mb-3">
+        <input type="password" name="password" placeholder="Contraseña">
+      </div>
+      <button type="submit" class="btn btn-success">Iniciar sesion</button>
+      <a href="/customer/signin">¿No tienes cuenta como cliente? Registrate!</a>
+    </form>
+  </div>
+</div>
+
+    <!--<h1 id="title">Nombre del comercio</h1>
+
+<div id="login"> 
+  <form action="/login" method="POST">
+    <div class="mb-3">
+      <label class="form-label">Numero de cedula</label>
+      <input name="username">
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1" class="form-label">Contraseña</label>
+      <input type="password" name="password">
+    </div>
+    <button type="submit" class="btn btn-success">Iniciar sesion</button>
+    <a href="/customer/signin">¿No tienes cuenta como cliente? Registrate!</a>
+  </form>
+</div>-->
+
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+
+}
+</style>
+
+<script type="text/babel">
+  (async function test(){
+    async function getProducts(){
+      let request=await fetch(`/customer/catalogue/products`, {method: 'GET', headers: {'Content-Type': 'application/json'}});
+      let response=await request.json();
+      return {products: response.result};
+    }
+    class Item extends React.Component {
+      constructor(props){
+        super(props)
+      }
+
+      render(){
+        return (
+          <div>
+            <p>{this.props.productName}</p>
+            <p>Cantidad disponible: {this.props.availableQuantity}</p> 
+            <p>Precio: {this.props.price}</p>
+            <img src={this.props.productPhotoPath}/>
+          </div>
+        )
+      }
+    }
+
+    class Grid extends React.Component {
+      constructor(props){
+        super(props)
+      }
+      render(){
+        return (
+        <div className="grid-container">
+          {this.props.products.map(product=>{
+            return <Item key={product.productName}
+                     productName={product.productName}
+                     availableQuantity={product.availableQuantity}
+                     price={product.price}
+                     productPhotoPath={product.productPhotoPath}
+            />})}
+        </div>
+        )
+      }
+    }
+
+    const data=await getProducts()
+    ReactDOM.render(
+      <Grid products={data.products}/>,
+      document.getElementById('root')
+    )
+    let images=document.querySelectorAll('img')
+    images.forEach(image=>{
+      console.log(image)
+    })
+  }())
+</script>
+
+</body>
+</html>
