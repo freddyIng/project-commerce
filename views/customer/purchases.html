@@ -24,10 +24,10 @@
       return (
           <nav className="navbar navbar-dark bg-dark">
            <div className="container-fluid">
-             {this.props.userType==='customer'? <a href="/customer/catalogue">Catalogo</a> :  <div><a href="/admin/inventory">Inventario</a><a href="/admin/edit-payment-information">Metodos de pago</a></div>}
-            <a href={this.props.userType==='customer'? '/customer/purchases' : '/admin/purchases'}>Tus transacciones</a>
-            <a href={this.props.userType==='customer'? 'customer/account-settings' : '/admin/account-settings'}>Configuracion de la cuenta</a>
-            <a href={this.props.userType==='customer'? '/customer/logout' : '/admin/logout'}>Salir</a>
+              <a href="/customer/catalogue">Catalogo</a>
+            <a href="/customer/purchases">Tus transacciones</a>
+            <a href="/customer/account-settings">Configuracion de la cuenta</a>
+            <a href="/customer/logout">Salir</a>
           </div>
          </nav>
       )
@@ -38,14 +38,9 @@
     class Table extends React.Component{
       constructor(props){
         super(props)
-        /*This component will have state, because the purchases can be in real time. Oh, at least if the view is of a admin, and obviously
-        if the admin is seeing this view. Shit, I
-        wonder if is a good idea to have this class (and view) shared between the admin and the client, because, the real time
-        state of notificacionts is only for the admin, there will be differences in terms of actions that can be executed on each transaction (confirm transacction, delivered for admin, cancel for the client...) Well, for now I will not worry about that*/
         this.state={
           itemsModal: []
         }
-
         this.changeModalState=this.changeModalState.bind(this)
       }
 
@@ -62,18 +57,24 @@
           <table className="table">
             <thead>
               <tr>
-                <th>{this.props.userType==='admin'? 'Cedula del comprador' : ''}</th><th>Productos</th><th>Precio total</th><th>Metodo de pago</th><th>Numero de referencia de la transaccion</th>
+                <th>Productos</th>
+                <th>Precio total</th>
+                <th>Metodo de pago</th>
+                <th>Numero de referencia de la transaccion</th>
+                <th>Estado de la transaccion</th>
+                <th>Pedido entregado</th>
               </tr>
             </thead>
             <tbody>
               {this.props.purchases.map(purchase=>{
                   return <tr key={purchase.referenceTransactionNumber}>
-                           <td>{this.props.userType==='admin'? purchase.customerDni : ''}</td>
                             <td>
                               <button type="button" className="btn btn-success" data-bs-toggle="modal" data-bs-target="#products" onClick={()=>this.changeModalState(purchase.items)}>Ver productos</button>
                            </td>
                            <td>{purchase.totalPrice}</td><td>{purchase.paymentMethod}</td>
                            <td>{purchase.referenceTransactionNumber}</td>
+                           <td>{purchase.verificationStatus}</td>
+                           <td>{purchase.deliveryStatus? 'Si' : 'No'}</td>
                          </tr>
               })}
             </tbody>
@@ -118,12 +119,8 @@
     }
 
     class transactions{
-      constructor(userType){
-        this.userType=userType
-      }
-
       async getTransactions(){
-        let request=await fetch(`${this.userType}/purchases/data`, {method: 'GET', headers: {'Content-Type': 'application/json'}})
+        let request=await fetch(`/customer/purchases/data`, {method: 'GET', headers: {'Content-Type': 'application/json'}})
         let response=await request.json()
         if (response.message==='Sucessfull operation'){
           return response.result
@@ -133,10 +130,9 @@
         }
       }
     }
-    let userType=window.location.pathname.replace('/purchases', '')
-    let transactionsObject=new transactions(userType)
-    const navBar=<NavBar userType={userType.replace('/', '')} />
-    const purchasesTable=<Table userType={userType.replace('/', '')} purchases={await transactionsObject.getTransactions()} />
+    let transactionsObject=new transactions()
+    const navBar=<NavBar />
+    const purchasesTable=<Table purchases={await transactionsObject.getTransactions()} />
     ReactDOM.render(
       <div>
       {navBar}

@@ -200,7 +200,7 @@ router.put('/update-product', async (req, res)=>{
 
 router.get('/purchases', (req, res)=>{
   if (req.cookies.admin_session===cookieValue){
-  	res.sendFile(viewPath+'/purchases.html');
+  	res.sendFile(viewPath+'/admin/purchases.html');
   } else{
   	res.send('Acceso denegado')
   }
@@ -217,6 +217,36 @@ router.get('/purchases/data', async (req, res)=>{
     }
   } else{
   	res.send('Acceso denegado')
+  }
+});
+
+router.put('/purchases/change/verification-status', async (req, res)=>{
+  try{
+    await purchases.update({verificationStatus: req.body.newState}, {
+      where: {
+        customerDni: req.body.dni,
+        referenceTransactionNumber: req.body.transactionNumber
+      }
+    });
+    res.json({message: 'Sucessfull operation'});
+  } catch(err){
+    console.log(err);
+    res.json({message: 'Failed operation'});
+  }
+});
+
+router.put('/purchases/change/delivery-status', async (req, res)=>{
+  try{
+    await purchases.update({deliveryStatus: req.body.newState==='Si'? true : false}, {
+      where: {
+        customerDni: req.body.dni,
+        referenceTransactionNumber: req.body.transactionNumber
+      }
+    });
+    res.json({message: 'Sucessfull operation'});
+  } catch(err){
+  	console.log(err);
+  	res.json({message: 'Failed operation'});
   }
 });
 

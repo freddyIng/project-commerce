@@ -20,6 +20,12 @@ Purchase.init({
   referenceTransactionNumber: {
     type: DataTypes.BIGINT
   },
+  verificationStatus: {
+    type: DataTypes.ENUM('Pendiente', 'Validada', 'Invalidada')
+  },
+  deliveryStatus: {
+    type: DataTypes.BOOLEAN //False for not delivered, true otherwise
+  }
 }, {
   sequelize,
   modelName: 'purchase'

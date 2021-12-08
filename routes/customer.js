@@ -80,7 +80,9 @@ router.post('/catalogue/buy', async (req, res)=>{
       items: req.body.items, 
       totalPrice: req.body.totalPrice,
       paymentMethod: req.body.paymentMethod,
-      referenceTransactionNumber: req.body.referenceTransactionNumber
+      referenceTransactionNumber: req.body.referenceTransactionNumber,
+      verificationStatus: 'Pendiente',
+      deliveryStatus: false
     });
     //Apart from update the purchases table, I need update the stock table of the respective commerce
     res.json({result: 'Successfull operation'});
@@ -91,7 +93,7 @@ router.post('/catalogue/buy', async (req, res)=>{
 });
 
 router.get('/purchases', (req, res)=>{
-  res.sendFile(viewPath+'/purchases.html');
+  res.sendFile(viewPath+'/customer/purchases.html');
 });
 
 router.get('/purchases/data', async (req, res)=>{
