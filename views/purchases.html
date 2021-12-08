@@ -6,6 +6,8 @@
     <link href="/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<script src="/js/bootstrap.bundle.min.js"></script>
+
 <div id="root"></div>
 
 <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
@@ -26,8 +28,6 @@
             <a href={this.props.userType==='customer'? '/customer/purchases' : '/admin/purchases'}>Tus transacciones</a>
             <a href={this.props.userType==='customer'? 'customer/account-settings' : '/admin/account-settings'}>Configuracion de la cuenta</a>
             <a href={this.props.userType==='customer'? '/customer/logout' : '/admin/logout'}>Salir</a>
-           	{this.props.userType==='customer'? <form className="d-flex"><input className="form-control me-2" type="search" placeholder="Nombre del comercio" aria-label="Search"/>
-           <button className="btn btn-outline-success" type="submit">Buscar</button></form> : ''}
           </div>
          </nav>
       )
@@ -42,32 +42,77 @@
         if the admin is seeing this view. Shit, I
         wonder if is a good idea to have this class (and view) shared between the admin and the client, because, the real time
         state of notificacionts is only for the admin, there will be differences in terms of actions that can be executed on each transaction (confirm transacction, delivered for admin, cancel for the client...) Well, for now I will not worry about that*/
-        this.state={}
+        this.state={
+          itemsModal: []
+        }
+
+        this.changeModalState=this.changeModalState.bind(this)
+      }
+
+      changeModalState(items){
+        this.setState({
+          itemsModal: items
+        })
       }
 
       render(){
         return (
+         <div>
+
           <table className="table">
             <thead>
               <tr>
-                <th>{this.props.userType==='admin'? 'Cedula del comprador' : 'Nombre del comercio'}</th><th>Productos</th><th>Precio total</th><th>Metodo de pago</th><th>Numero de referencia de la transaccion</th>
+                <th>{this.props.userType==='admin'? 'Cedula del comprador' : ''}</th><th>Productos</th><th>Precio total</th><th>Metodo de pago</th><th>Numero de referencia de la transaccion</th>
               </tr>
             </thead>
             <tbody>
               {this.props.purchases.map(purchase=>{
                   return <tr key={purchase.referenceTransactionNumber}>
-                           <td>{this.props.userType==='admin'? purchase.customerDni : purchase.commerceName}</td><td>{purchase.items.map(item=>{
-                           	return <div key={item.name}>
-                           	         <p>Nombre: {item.name}</p>
-                           	        <p>Cantidad: {item.amount}</p>
-                           	        <p>Precio: {item.price}</p>
-                           	       </div>
-                           })}</td><td>{purchase.totalPrice}</td><td>{purchase.paymentMethod}</td>
+                           <td>{this.props.userType==='admin'? purchase.customerDni : ''}</td>
+                            <td>
+                              <button type="button" className="btn btn-success" data-bs-toggle="modal" data-bs-target="#products" onClick={()=>this.changeModalState(purchase.items)}>Ver productos</button>
+                           </td>
+                           <td>{purchase.totalPrice}</td><td>{purchase.paymentMethod}</td>
                            <td>{purchase.referenceTransactionNumber}</td>
                          </tr>
               })}
             </tbody>
           </table>
+
+
+
+          <div className="modal fade" id="products" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal-dialog">
+            <div className="modal-content">
+            <div className="modal-header">
+            <h5 className="modal-title" id="exampleModalLabel">Productos que compro el cliente</h5>
+            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div className="modal-body">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Producto</th><th>Cantidad</th><th>Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.itemsModal.map(item=>{
+                  return <tr key={item.name}>
+                           <td>{item.name}</td><td>{item.amount}</td><td>{item.price}</td>
+                         </tr>
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+          </div>
+          </div>
+          </div>
+
+
+        </div>
         )
       }
     }

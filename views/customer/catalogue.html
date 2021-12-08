@@ -30,10 +30,6 @@
      <a href="/customer/purchases">Tus transacciones</a>
      <a href="/customer/account-settings">Configuracion de la cuenta</a>
      <a href="/customer/logout">Salir</a>
-      <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Nombre del comercio" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Buscar</button>
-      </form>
   </div>
 </nav>
 
@@ -63,13 +59,12 @@
   }
 
   class paymentInformation{
-    constructor(shopName){
-      this.shopName=shopName
+    constructor(){
       this.data=[]
     }
 
     async getData(){
-      let request=await fetch(`/customer/catalogue/payment-information?commerceName=${this.shopName}`, {method: 'GET', headers: 
+      let request=await fetch('/customer/catalogue/payment-information', {method: 'GET', headers: 
         {'Content-Type': 'application/json'}})
       let response=await request.json()
       if (response.message==='Sucessfull operation'){
@@ -85,9 +80,8 @@
       return this.data
     }
   }
-  let commerceName=window.location.search.replace('?commerceName=', '')
-  async function getProducts(shopName){
-    let request=await fetch(`/customer/catalogue/products?commerceName=${shopName}`, {method: 'GET', headers: {'Content-Type': 'application/json'}});
+  async function getProducts(){
+    let request=await fetch('/customer/catalogue/products', {method: 'GET', headers: {'Content-Type': 'application/json'}});
     let response=await request.json();
     return {products: response.result};
   }
@@ -98,7 +92,6 @@
       constructor(props){
         super(props)
         this.addToCart=this.addToCart.bind(this)
-        /*Por ahora no hay estados, salvo el color del boton que cambia temporalmente. Esto cambiara con el carrito de compra, websockets, compra definitiva, etc...*/
         this.state={
           addToCartButtonColor: 'btn btn-warning'
         }
@@ -190,6 +183,7 @@
       constructor(props){
         super(props)
         this.addItem=this.addItem.bind(this)
+        this.deleteItem=this.deleteItem.bind(this)
         this.state={
           items: [],
           totalPrice: 0
@@ -248,12 +242,37 @@
         eventBus.dispatch('updateTotalPrice', {newPrice: newTotalPrice}) 
       }
 
-      deleteItem(itemName){
-        
+      async deleteItem(itemName){
+        //I get the index of the item in the array state, and I update from that
+        let i=0, flag=false, itemIndex=-1
+        while (i<this.state.items.length || !flag){
+          if (this.state.items[i].name===itemName){
+            flag=true
+            itemIndex=i
+          }
+          i++
+        }
+        let newItemsValue=[]
+        for (let i=0; i<this.state.items.length; i++){
+          if (i!==itemIndex){
+            newItemsValue.push(this.state.items[i])
+          }
+        }
+        await this.setState({
+          items: newItemsValue
+        })
+        //I calculate the total price again
+        let newTotalPrice=0
+        this.state.items.forEach(item=>{
+          newTotalPrice+=parseInt(item.amount)*parseInt(item.price)
+        })
+        await this.setState({ 
+          totalPrice: newTotalPrice
+        })
+        eventBus.dispatch('updateTotalPrice', {newPrice: this.state.totalPrice}) 
       }
 
       buy(){ //Just show the purchase modal
-        
       }
 
       render(){
@@ -275,7 +294,7 @@
               <tbody>
                 {this.state.items.map(item=>{
                   return <tr key={item.name}>
-                           <td>{item.name}</td><td>{item.price}</td><td>{item.amount}</td><td><img src={item.src}/></td>
+                           <td>{item.name}</td><td>{item.price}</td><td>{item.amount}</td><td><img src={item.src}/></td><td><button onClick={()=>this.deleteItem(item.name)} className="btn btn-danger">Quitar</button></td>
                          </tr>
                 })}
               </tbody>
@@ -299,9 +318,11 @@
         this.transaction=this.transaction.bind(this)
         this.changeMethodName=this.changeMethodName.bind(this)
         this.changeReferenceNumber=this.changeReferenceNumber.bind(this)
+        /*The user is free to change his payment method, yes, but the initial value will be the first of the shop.
+        For two reasons: If the store only has one method, then the user will not be able to execute the change action, and then the value will never change. Even if there are more than two, but the user never changes, the value will remain null, since the value of the payment method will still depend on whether or not the user changes the method.*/
         this.state={
           totalPrice: 0,
-          methodName: '',
+          methodName: this.props.paymentMethods[0].name,
           referenceNumber: ''
         }
       }
@@ -346,7 +367,6 @@
 
       async transaction(purchaseData){
         let data={
-          commerceName: this.props.shopName,
           items: purchaseData,
           totalPrice: this.state.totalPrice,
           paymentMethod: this.state.methodName,
@@ -375,7 +395,7 @@
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div className="modal-body" id="purchaseBody">
-      	<p>Estos son los metodos de pago y los datos usados por {this.props.shopName}. Haz la respectiva transaccion con alguno de estos metodos
+      	<p>Estos son los metodos de pago y los datos usados por nombre del comercio. Haz la respectiva transaccion con alguno de estos metodos
       	y luego confirma la transaccion</p>
         {this.props.paymentMethods.map(method=>{
           return <p key={method.name}>
@@ -404,10 +424,10 @@
     }
 
     //Ok... I need pass as props the financial information of the commerce to the purchase component, just that...
-    let data=await getProducts(commerceName)
-    let paymentData=new paymentInformation(commerceName)
+    let data=await getProducts()
+    let paymentData=new paymentInformation()
     const cart=<ShoppingCart />
-    const purchase=<Purchase paymentMethods={await paymentData.getData()} shopName={commerceName}/>
+    const purchase=<Purchase paymentMethods={await paymentData.getData()}/>
     const searchProduct=<SearchProduct />
     const list=<List products={data.products} />
     ReactDOM.render(

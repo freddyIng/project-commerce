@@ -2,6 +2,7 @@ const router=require('express').Router();
 const viewPath=__dirname.replace('/routes', '/views');
 const classPath=__dirname.replace('/routes', '/classes/backend/');
 const customer=require(classPath+'customer.js');
+const admin=require(classPath+'admin.js');
 const purchases=require(classPath+'purchase.js');
 const stock=require(classPath+'stock.js');
 const { body, validationResult }=require('express-validator');
@@ -23,7 +24,10 @@ router.post('/signin',
   , async (req, res)=>{
   const errors=validationResult(req);
   if (!errors.isEmpty()){
-    return res.status(400).json({ errors: errors.array() });
+    //return res.status(400).json({ errors: errors.array() });
+    let message='Datos invalidos. El numero de cedula debe tener minimo 6 numeros y maximo 8.';
+    message+='A su vez, la contraseña debe tener minimo 6 caracteres y maximo 20.';
+    return res.send(message);
   }
   bcrypt.hash(req.body.password, saltRounds, async (err, hash)=>{
     if (err) return res.send('Ha ocurrido un error al encriptar tu contraseña. Intentelo de nuevo');
@@ -58,6 +62,7 @@ router.get('/catalogue/payment-information', async (req, res)=>{
     let data=await admin.findAll({attributes: ['paymentInformation']});
     res.json({message: 'Sucessfull operation', result: data});
   } catch(err){
+    console.log(err)
     res.json({message: 'Failed operation'});
   }
 });

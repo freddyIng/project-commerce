@@ -1,4 +1,9 @@
--Modificar la base de datos y las vistas en general para que sea solo un comercio.
+Implementar estados de la compra/pedido del cliente, por ejemplo:
+estados: pendiente, cancelado, confirmado y entregado. Tambien, podria tener un atributo adicional introducido por el cliente,
+el cual sera si la entrega es presencial (el cliente va al comercio) o delivery. En el caso de delivery, el cliente debera
+proveer su direccion, pero ya hay problemas respecto a este enfoque.
+El numero (para pago movil), etc...
+
 
 -Falta la verificacion por correo electronico de clientes. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
@@ -15,12 +20,6 @@ Falta guardar la informacion relacionada al carrito de compra en las cookies/inf
 
 Falta comprobar la lista de items al momento de que el usuario haga la compra. Si los productos que desea el usuario
 estan disponbiles, entonces al hacer la transaccion, se resta la cantidad en el inventario de la tienda.
-
-Implementar estados de la compra/pedido del cliente, por ejemplo:
-estados: pendiente, cancelado, confirmado y entregado. Tambien, podria tener un atributo adicional introducido por el cliente,
-el cual sera si la entrega es presencial (el cliente va al comercio) o delivery. En el caso de delivery, el cliente debera
-proveer su direccion, pero ya hay problemas respecto a este enfoque.
-El numero (para pago movil), etc...
 
 
 Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por ejemplo:
