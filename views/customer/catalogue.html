@@ -375,13 +375,18 @@
         let request=await fetch('/customer/catalogue/buy', {method: 'POST', headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify(data)})
         let response=await request.json()
-        if (response.result==='Successfull operation'){
+        if (response.message==='Successfull operation'){
           //Delete all the items of the shopping cart, and show the message of succesfull purchase
           eventBus.dispatch('sucessfullPurchase', null)
           alert('Compra exitosa!')
-        } else{
+        } else if (response.message==='Failed operation'){
           //Show failed message...
           alert('Ha ocurrido un error. Intentelo de nuevo')
+        } else if (response.message==='Producto(s) con cantidad insuficiente'){
+          let productsNotAvailable=response.result.map(item=>{
+            return item.name
+          })
+          alert(response.message + ' Los productos que cuya cantidad pedida no esta disponible son: '+productsNotAvailable.toString())
         } 
       }
 

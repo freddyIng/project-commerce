@@ -69,9 +69,56 @@ router.get('/catalogue/payment-information', async (req, res)=>{
 
 const validator=require('validator');
 
+const connectionPoolPath=__dirname.replace('/routes', '');
+const dbConnector=require(connectionPoolPath+'/connection-pool.js');
+const sequelize=dbConnector.getPool();
+
+function bubbleSort(array, clientRequestOrDatabaseResult){
+  let reference='', aux=null;
+  clientRequestOrDatabaseResult? reference='name' : reference='productname';
+  for (let i=0; i<array.length; i++){
+    for (let j=0; j<array.length-1; j++){
+      if (array[j][reference]>array[j+1][reference]){
+        aux=array[j];
+        array[j]=array[j+1];
+        array[j+1]=aux;
+      }
+    }
+  }
+  return array;
+}
+
 router.post('/catalogue/buy', async (req, res)=>{
-  //Remeber that the purchase table. It belongs to both the business and the customer. Both can consult it when viewing their transactions.
   try{
+    /*I check if the quantity of the products is complete. If so, I complete the transaction and update the product quantity in the 
+    database. If not, I send a message to the user notifying him that the quantity of the respective products is not enough.*/
+    let productsNames='';
+    for (let i=0; i<req.body.items.length; i++){
+      i!==req.body.items.length-1? productsNames+=`'${req.body.items[i].name}', ` : productsNames+=`'${req.body.items[i].name}'`;
+    }
+    let [data, metadata]=await sequelize.query(`SELECT productname, availablequantity FROM stocks WHERE productName 
+      IN (${productsNames})`);
+    /*I order both the array of items and the array returned by the database, in this way, I will be able to compare the quantity ordered by the customer and the current quantity available for each product. As the result returned by the database query is not in the same order as the user's request, so I order them to be able to compare them.
+    Also, when you update the available quantity of each item, the order of the update will be correct.*/
+    req.body.items=bubbleSort(req.body.items, true);
+    data=bubbleSort(data, false);
+    let productsWithInsufficientQuantity=[];
+    for (let i=0; i<data.length; i++){
+      if (data[i].availablequantity<req.body.items[i].amount){
+        productsWithInsufficientQuantity.push(req.body.items[i])
+      }
+    }
+    if (productsWithInsufficientQuantity.length>0){
+      return res.json({message: 'Producto(s) con cantidad insuficiente', result: productsWithInsufficientQuantity});
+    }
+    let cases='CASE productname ';
+    for (let i=0; i<data.length; i++){
+      cases+=`WHEN '${data[i].productname}' THEN ${data[i].availablequantity-req.body.items[i].amount} `;
+    }
+    let query='UPDATE stocks SET availablequantity='+cases+' ELSE availablequantity END ';
+    query+=`WHERE productname IN (${productsNames})`;
+    await sequelize.query(query);
+
     //I sanitize the transction number because is the only keyboard entry for the client
     req.body.referenceTransactionNumber=validator.trim(req.body.referenceTransactionNumber);
     req.body.referenceTransactionNumber=validator.escape(req.body.referenceTransactionNumber);
@@ -85,10 +132,10 @@ router.post('/catalogue/buy', async (req, res)=>{
       deliveryStatus: false
     });
     //Apart from update the purchases table, I need update the stock table of the respective commerce
-    res.json({result: 'Successfull operation'});
+    res.json({message: 'Successfull operation'});
   } catch(err){
     console.log(err)
-    res.json({result: 'Failed operation'});
+    res.json({message: 'Failed operation'});
   }
 });
 

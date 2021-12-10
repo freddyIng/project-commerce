@@ -1,8 +1,9 @@
-Implementar estados de la compra/pedido del cliente, por ejemplo:
-estados: pendiente, cancelado, confirmado y entregado. Tambien, podria tener un atributo adicional introducido por el cliente,
-el cual sera si la entrega es presencial (el cliente va al comercio) o delivery. En el caso de delivery, el cliente debera
-proveer su direccion, pero ya hay problemas respecto a este enfoque.
-El numero (para pago movil), etc...
+Definir la informacion de los metodos de pago del comercio. Lo mismo para la informacion de la transaccion del usuario.
+
+Usar websockets(socketio) para hacer la aplicacion en tiempo real:
+Cuando un cliente
+hace una compra/pedido, se confirma la compra, etc, y las respectivas notificaciones a la pagina del administrador.
+Cuando un administrador confirma o rechaza la compra del cliente, el cliente recibe una notificacion.
 
 
 -Falta la verificacion por correo electronico de clientes. Usando 
@@ -13,17 +14,7 @@ Pero... aun asi, podria implementar otro metodo, algo asi como preguntas aleator
 En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
 
-Usar validator pra sanitizar datos en el lado del cliente (inventario) al momento de renderizar el producto con react, ya que asi 
-evitare ataques de inyeccion de javascript.
-
-Falta guardar la informacion relacionada al carrito de compra en las cookies/informacion de sesion del usuario.
-
-Falta comprobar la lista de items al momento de que el usuario haga la compra. Si los productos que desea el usuario
-estan disponbiles, entonces al hacer la transaccion, se resta la cantidad en el inventario de la tienda.
+Mejorar estetica y presentacion.
 
 
-Nota: Usar websockets(socketio) para hacer la aplicacion en tiempo real. Por ejemplo:
-Cuando un cliente
-hace una compra/pedido, se confirma la compra, etc, y las respectivas notificaciones a la pagina del administrador.
-Cuando un administrador confirma o rechaza la compra del cliente, el cliente recibe una notificacion.
 

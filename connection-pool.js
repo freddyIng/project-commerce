@@ -10,6 +10,7 @@ module.exports={
       dialect: 'postgres',
       quoteIdentifiers: false,
       freezeTableName: true,
+      logging: false,
       pool: {
         max: 100,
         min: 0,
