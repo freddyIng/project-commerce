@@ -14,6 +14,12 @@
 <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
+<script src="/socket.io/socket.io.js"></script>
+<script>  
+  var socket=io();
+  fetch('/admin/purchases/change/view-by-admin-status', {method: 'PUT'});
+</script>
+
 <script type="text/babel">
   class NavBar extends React.Component{
     constructor(props){
@@ -39,10 +45,25 @@
   constructor(props){
     super(props)
     this.state={
+      purchases: this.props.purchases,
       itemsModal: []
     }
     this.changeModalState=this.changeModalState.bind(this)
     this.changeTransactionStatus=this.changeTransactionStatus.bind(this)
+  }
+
+  componentDidMount(){
+    socket.on('new purchase', data => {
+      alert('Tienes una nueva compra!');
+      //I update the state with the new purchase. And I put in the beginning of the array, so, will render as the first.
+      let newPurchasesState=this.state.purchases
+      newPurchasesState.unshift(data)
+      this.setState({
+        purchases: newPurchasesState
+      })
+      //Next, I update the state of view by the admin in the database making a request.
+      fetch('/admin/purchases/change/view-by-admin-status', {method: 'PUT'})
+    })
   }
 
   changeModalState(items){
@@ -86,7 +107,7 @@
               </tr>
             </thead>
             <tbody>
-              {this.props.purchases.map(purchase=>{
+              {this.state.purchases.map(purchase=>{
               	  let remainingVerificationStatus=[]
               	  switch(purchase.verificationStatus){
               	    case 'Pendiente':

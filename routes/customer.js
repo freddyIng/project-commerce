@@ -129,10 +129,15 @@ router.post('/catalogue/buy', async (req, res)=>{
       paymentMethod: req.body.paymentMethod,
       referenceTransactionNumber: req.body.referenceTransactionNumber,
       verificationStatus: 'Pendiente',
-      deliveryStatus: false
+      deliveryStatus: false,
+      /*I assume that the administrator and client have not seen the event. However, if 
+      they are in the transaction view, then an event will be fired that changes the state to true automatically.*/
+      viewByAdministrator: false,
+      statusVerificationChangeSeenByTheClient: false
     });
-    //Apart from update the purchases table, I need update the stock table of the respective commerce
-    res.json({message: 'Successfull operation'});
+    /*Apart from the message, I send the dni (req.user), so, the event of the socket will have the complete data for render in the 
+    purchase view admin*/
+    res.json({message: 'Successfull operation', dni: req.user});
   } catch(err){
     console.log(err)
     res.json({message: 'Failed operation'});

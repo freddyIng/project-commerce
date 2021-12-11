@@ -25,6 +25,12 @@ Purchase.init({
   },
   deliveryStatus: {
     type: DataTypes.BOOLEAN //False for not delivered, true otherwise
+  },
+  viewByAdministrator: {
+    type: DataTypes.BOOLEAN
+  },
+  statusVerificationChangeSeenByTheClient: {
+    type: DataTypes.BOOLEAN
   }
 }, {
   sequelize,

@@ -1,0 +1,8 @@
+ .newPurchasesNotification{
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: red;
+      color: white;
+      text-indent:5px;
+ }

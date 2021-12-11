@@ -43,6 +43,11 @@
 <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
+<script src="/socket.io/socket.io.js"></script>
+<script>  
+  var socket=io();
+</script>
+
 <script type="text/babel">
   /*Creo la clase "informacion bancaria" que contendra la informacion respectiva a las cuentas bancarias y metodos de pago del comercio
   que este viendo el usuario, para que al momento de pagar, el usuario pueda ver las distintas opciones*/
@@ -378,6 +383,8 @@
         if (response.message==='Successfull operation'){
           //Delete all the items of the shopping cart, and show the message of succesfull purchase
           eventBus.dispatch('sucessfullPurchase', null)
+          data.customerDni=response.dni
+          socket.emit('new purchase', data);
           alert('Compra exitosa!')
         } else if (response.message==='Failed operation'){
           //Show failed message...

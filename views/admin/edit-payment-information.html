@@ -3,6 +3,7 @@
 <head>
 	<title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/admin/new-purchases-notification.css">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -11,12 +12,33 @@
   <div class="container-fluid">
     <a href="/admin/inventory">Inventario</a>
     <a href="/admin/edit-payment-information">Metodos de pago</a>
-    <a href="/admin/purchases">Compras de tus clientes</a>
+    <a href="/admin/purchases"><div id="notification" class="newPurchasesNotification"></div>Compras de tus clientes</a>
     <a href="/admin/account-settings">Configuracion de la cuenta</a>
     <a href="/admin/logout">Salir</a>
   </div>
 </nav>
 
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+  let notification=document.getElementById('notification');
+
+  (async function getUnseenPurchases(){
+    let request=await fetch('/admin/purchases/unseen-purchases', {method: 'GET'});
+    let response=await request.json();
+    if (response.message==='Sucessfull operation'){
+      const numberOfNotifications=response.purchases.length;
+      if (numberOfNotifications>0){
+        notification.textContent=numberOfNotifications.toString();
+      }
+    }
+  })();
+  var socket=io();
+  socket.on('new purchase', data => {
+    let number=notification.textContent;
+    number===''? number=1 : number=parseInt(number)+1;
+    notification.textContent=number.toString();
+  });
+</script>
 
 <h3>Bancos</h3>
 <p>Inserta numero de cuenta si tienes cuenta en el banco de tu eleccion</p>

@@ -1,5 +1,9 @@
 const express=require('express');
 const app=express();
+const http=require('http')
+;const server=http.createServer(app);
+const { Server }=require("socket.io");
+const io=new Server(server);
 /*const winston=require('winston');
 const expressWinston=require('express-winston');*/
 const port=5000; 
@@ -25,6 +29,18 @@ app.use('/', index);
 app.use('/admin', admin);
 app.use('/customer', customer);
 
-app.listen(port, (req, res)=>{
-  console.log('Sevidor iniciado');
+io.on('connection', socket => {  
+  console.log('a user connected');
+  socket.on('disconnect', () => {    
+    console.log('user disconnected');  
+  });
+  socket.on('new purchase', data => {
+  	data.verificationStatus='Pendiente';
+  	data.deliveryStatus=false;
+    io.emit('new purchase', data);
+  });
+});
+
+server.listen(port, () => {  
+  console.log('Servidor iniciado');
 });

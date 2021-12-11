@@ -250,6 +250,30 @@ router.put('/purchases/change/delivery-status', async (req, res)=>{
   }
 });
 
+router.put('/purchases/change/view-by-admin-status', async (req, res)=>{
+  try{
+    await purchases.update({viewByAdministrator: true}, {
+      where: {
+        viewByAdministrator: false
+      }
+    });
+  } catch(err){
+    console.log(err);
+  }
+});
+
+router.get('/purchases/unseen-purchases', async (req, res)=>{
+  try{
+    let results=await purchases.findAll({where: {
+    	viewByAdministrator: false
+    }});
+    res.json({message: 'Sucessfull operation', purchases: results});
+  } catch(err){
+    console.log(err);
+    res.json({message: 'error'});
+  }
+});
+
 router.get('/account-settings', (req, res)=>{
   if (req.cookies.admin_session===cookieValue){
     res.sendFile(viewPath+'/account-settings-commerce.html');
