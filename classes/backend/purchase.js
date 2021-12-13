@@ -28,9 +28,6 @@ Purchase.init({
   },
   viewByAdministrator: {
     type: DataTypes.BOOLEAN
-  },
-  statusVerificationChangeSeenByTheClient: {
-    type: DataTypes.BOOLEAN
   }
 }, {
   sequelize,

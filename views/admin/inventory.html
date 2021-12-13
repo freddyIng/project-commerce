@@ -51,6 +51,7 @@
   })();
   var socket=io();
   socket.on('new purchase', data => {
+    console.log(22222)
     let number=notification.textContent;
     number===''? number=1 : number=parseInt(number)+1;
     notification.textContent=number.toString();

@@ -29,15 +29,27 @@ app.use('/', index);
 app.use('/admin', admin);
 app.use('/customer', customer);
 
-io.on('connection', socket => {  
-  console.log('a user connected');
-  socket.on('disconnect', () => {    
-    console.log('user disconnected');  
+let customersOnline=new Map(), customersOnlineInverse=new Map();
+
+io.on('connection', socket => {
+  socket.on('set online customer', data=>{
+    customersOnline.set(data.dni, socket.id);
+    customersOnlineInverse.set(socket.id, data.dni);
+  });
+  socket.on('disconnect', () => {
+    let dni=customersOnlineInverse.get(socket.id);
+    customersOnline.delete(dni);
+    customersOnlineInverse.delete(socket.id);     
   });
   socket.on('new purchase', data => {
   	data.verificationStatus='Pendiente';
   	data.deliveryStatus=false;
     io.emit('new purchase', data);
+  });
+  socket.on('change status purchase', data=>{
+  	if (customersOnline.has(data.dni)){
+  	  io.to(customersOnline.get(data.dni)).emit('change status purchase', data);
+  	}
   });
 });
 

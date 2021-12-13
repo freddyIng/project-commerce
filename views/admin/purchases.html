@@ -84,6 +84,7 @@
     let request=await fetch(`/admin/purchases/change/${status}`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: data})
     let response=await request.json()
     if (response.message==='Sucessfull operation'){
+      socket.emit('change status purchase', {dni: customerDni, statusType: verificationOrDelivery? 'Verificacion' : 'Entrega', state: event.target.value, referenceNumber: referenceTransactionNumber})
       alert('El estado de la transaccion ha sido cambiado con exito!')
     } else{
       alert('Ha ocurrido un error. Intentelo de nuevo')

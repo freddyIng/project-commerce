@@ -1,13 +1,5 @@
 -Definir la informacion de los metodos de pago del comercio. Lo mismo para la informacion de la transaccion del usuario.
 
--Usar websockets(socketio) para hacer la aplicacion en tiempo real:
-Cuando un cliente
-hace una compra/pedido, se confirma la compra, etc, y las respectivas notificaciones a la pagina del administrador.
-Cuando un administrador confirma o rechaza la compra del cliente, el cliente recibe una notificacion. UPDATE: Terminada
-la implementacion de la notificacion de compra al administrador. Falta la del cliente, aunque podria optar por no implementarla,
-ya que no es tan vital.
-
-
 -Falta la verificacion por correo electronico de clientes. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
 asi debido a la funcionalidad de recuperacion de contraseña, ya que enviarla via correo al usuario es el estandar.
@@ -16,7 +8,11 @@ Pero... aun asi, podria implementar otro metodo, algo asi como preguntas aleator
 En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
 
-Mejorar estetica y presentacion.
+-Mejorar estetica y presentacion.
+
+-Ordenar el codigo y mejorar el manejo de errores y mensajes
+
+-Aplicar winston para el log de errores
 
 
 

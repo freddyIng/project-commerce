@@ -46,6 +46,14 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>  
   var socket=io();
+  (async function setCustomerOnline(){
+    let request=await fetch('/customer/dni', {method: 'GET'});
+    let response=await request.json();
+    socket.emit('set online customer', {dni: response.dni});
+  })();
+  socket.on('change status purchase', data => {
+    alert('Su transaccion ha cambiado de estado!');
+  });
 </script>
 
 <script type="text/babel">
@@ -384,7 +392,7 @@
           //Delete all the items of the shopping cart, and show the message of succesfull purchase
           eventBus.dispatch('sucessfullPurchase', null)
           data.customerDni=response.dni
-          socket.emit('new purchase', data);
+          socket.emit('new purchase', data)
           alert('Compra exitosa!')
         } else if (response.message==='Failed operation'){
           //Show failed message...
