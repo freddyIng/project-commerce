@@ -2,7 +2,7 @@ const router=require('express').Router();
 const viewPaths=__dirname.replace('/routes', '/views');
 
 //requerimentes for the local login
-const classPath=__dirname.replace('/routes', '/classes/backend/');
+const classPath=__dirname.replace('/routes', '/src/classes/backend/');
 const customer=require(classPath+'customer.js');
 const session=require('express-session');
 const passport=require('passport');

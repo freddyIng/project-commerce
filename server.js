@@ -14,12 +14,19 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+
+
 app.use(express.static('styles'));
 app.use(express.static('images'));
 app.use(express.static('commerce-photos'));
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+
+
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 app.use(express.static(__dirname+'/node_modules/validator'));
+app.use(express.static('node_modules/react/umd'));
+app.use(express.static('node_modules/react-dom/umd'));
+app.use(express.static('src'));
 
 const index=require('./routes/index.js');
 const admin=require('./routes/admin.js');

@@ -1,5 +1,12 @@
 -Definir la informacion de los metodos de pago del comercio. Lo mismo para la informacion de la transaccion del usuario.
 
+-Agregar la fecha y hora de las transacciones. Y tambien, ordenar las transacciones cronologicamente, para que asi el usuario
+(especialmente el administrador) pueda tener una vista mas ordenade, con las mas recientes arriba y las mas viejas abajo.
+
+-Cristalizar el cambio de estado de las transacciones (si estan validadas o invalidads, no deberia tener opcion de cambio),
+lo mismo que si el estado de entrega es "Si". Obviamente, antes de cambiar estado, preguntar al usuario si esta aseguro y advertirle
+al administrador que la decision es irreversible.
+
 -Falta la verificacion por correo electronico de clientes. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
 asi debido a la funcionalidad de recuperacion de contraseña, ya que enviarla via correo al usuario es el estandar.
@@ -10,9 +17,25 @@ no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria
 
 -Mejorar estetica y presentacion.
 
--Ordenar el codigo y mejorar el manejo de errores y mensajes
+-Posiblemente usar una libreria como croppie para forzar al administrador a recortar la foto para que sea de un tamaño estandar
+
+-Mejorar el manejo de errores.
 
 -Aplicar winston para el log de errores
+
+-Testear la aplicacion (unitario e integral)
+
+-Usar redis para el almacenamiento en cache y aumentar el rendimiento de la aplicacion.
+
+-Usar nginx
+
+-Usar pm2 (o forever?) para ejecutar la aplicacion en el servidor, si el proceso jamas se parara incluso si hay errores
+
+-Test de rendimiento
+
+-Aplicar ajustes de seguridad
+
+-Test de seguridad (pentesting)
 
 
 

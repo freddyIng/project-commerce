@@ -1,6 +1,6 @@
 const router=require('express').Router();
 const viewPath=__dirname.replace('/routes', '/views');
-const classPath=__dirname.replace('/routes', '/classes/backend/');
+const classPath=__dirname.replace('/routes', '/src/classes/backend/');
 const customer=require(classPath+'customer.js');
 const admin=require(classPath+'admin.js');
 const purchases=require(classPath+'purchase.js');

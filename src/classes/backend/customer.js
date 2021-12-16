@@ -1,5 +1,5 @@
 //Customer of the commerces
-const connectionPoolPath=__dirname.replace('/classes/backend', '');
+const connectionPoolPath=__dirname.replace('/src/classes/backend', '');
 const dbConnector=require(connectionPoolPath+'/connection-pool.js');
 const sequelize=dbConnector.getPool();
 const {DataTypes, Model}=require('sequelize');

@@ -5,17 +5,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link href="/css/bootstrap.min.css" rel="stylesheet">
   <link href="/customer/index.css" rel="stylesheet">
-  <style type="text/css">
-  	#title{
-  	  display: flex;
-  	  justify-content: center;
-  	}
-
-    .container{
-      display: flex;
-      justify-content: space-between;
-    }
-  </style>
 </head>
 <body>
 
@@ -39,68 +28,14 @@
 
 <div id="root"></div>
 
-<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script src="/react.production.min.js"></script>
+<script src="/react-dom.production.min.js"></script>
 
-<style>
-.grid-container {
-  display: grid;
-  grid-template-columns: auto auto auto;
+<script type="text/javascript" src="/classes/frontend/customer/index-transpiled/item.js"></script>
+<script type="text/javascript" src="/classes/frontend/customer/index-transpiled/grid.js"></script>
+<script type="text/javascript" src="/classes/frontend/customer/index-transpiled/data.js"></script>
 
-}
-</style>
-
-<script type="text/babel">
-  (async function test(){
-    async function getProducts(){
-      let request=await fetch(`/customer/catalogue/products`, {method: 'GET', headers: {'Content-Type': 'application/json'}});
-      let response=await request.json();
-      return {products: response.result};
-    }
-    class Item extends React.Component {
-      constructor(props){
-        super(props)
-      }
-
-      render(){
-        return (
-          <div>
-            <p>{this.props.productName}</p>
-            <p>Cantidad disponible: {this.props.availableQuantity}</p> 
-            <p>Precio: {this.props.price}</p>
-            <img src={this.props.productPhotoPath}/>
-          </div>
-        )
-      }
-    }
-
-    class Grid extends React.Component {
-      constructor(props){
-        super(props)
-      }
-      render(){
-        return (
-        <div className="grid-container">
-          {this.props.products.map(product=>{
-            return <Item key={product.productName}
-                     productName={product.productName}
-                     availableQuantity={product.availableQuantity}
-                     price={product.price}
-                     productPhotoPath={product.productPhotoPath}
-            />})}
-        </div>
-        )
-      }
-    }
-
-    const data=await getProducts()
-    ReactDOM.render(
-      <Grid products={data.products}/>,
-      document.getElementById('root')
-    )
-  }())
-</script>
+<script type="text/javascript" src="/controllers-frontend/customer-transpiled/index.js"></script>
 
 </body>
 </html>

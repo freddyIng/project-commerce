@@ -11,8 +11,10 @@
 
 <style>
   img{
-    max-width: 100%;
-    height: auto;
+    width: 50px;
+    height: 50px;
+    /*max-width: 100%;
+    height: auto;*/
   }
 </style>
 
@@ -31,9 +33,6 @@
 <div id="root"> 
 </div>
 
-<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
@@ -51,361 +50,36 @@
   })();
   var socket=io();
   socket.on('new purchase', data => {
-    console.log(22222)
     let number=notification.textContent;
     number===''? number=1 : number=parseInt(number)+1;
     notification.textContent=number.toString();
   });
-</script>
 
-<script type="text/babel">
-    const eventBus={
+  const eventBus={
     on(event, callback){
       document.addEventListener(event, (e) => callback(e.detail));
     },
     dispatch(event, data){
       document.dispatchEvent(new CustomEvent(event, { detail: data }));
+    },
+    remove(event, callback) {
+      document.removeEventListener(event, callback);
     }
   }
-
-  class AddProductForm extends React.Component{
-    constructor(props){
-      super(props)
-      this.fileInput=React.createRef()
-      this.state={
-        name: '',
-        availableQuantity: '',
-        price: ''
-      }
-      this.changeProductName=this.changeProductName.bind(this)
-      this.changeProductAvailableQuantity=this.changeProductAvailableQuantity.bind(this)
-      this.changeProductPrice=this.changeProductPrice.bind(this)
-      this.sendData=this.sendData.bind(this)
-    }
-
-    changeProductName(event){
-      this.setState({name: event.target.value})
-    }
-
-    changeProductAvailableQuantity(event){
-      this.setState({availableQuantity : event.target.value})
-    }
-
-    changeProductPrice(event){
-      this.setState({price : event.target.value})
-    }
-
-    async sendData(){
-      if (this.state.name==='' || this.state.availableQuantity===''
-      || this.state.price==='' || this.fileInput.current.files[0].name===''){
-        alert('Todos los campos son requeridos al momento de agregar un producto! Por favor, llene los campos campos correspondientes,incluida la carga de la correspondiente foto del producto.')
-        return
-      }
-      let data={
-        productName: this.state.name,
-        amount: this.state.availableQuantity,
-        price: this.state.price,
-      }
-      let request=await fetch('/admin/add-product/data', {method: 'POST', headers: {'Content-Type': 'application/json'}, 
-  	    body: JSON.stringify(data)})
-      let response=await request.json()
-      if (response.message==='Sucessfull operation'){
-        let photo=new FormData()
-        photo.append('productPhoto', this.fileInput.current.files[0])
-        photo.append('productName', this.state.name)
-        request=await fetch('/admin/add-product/photo', {method: 'POST', body: photo})
-  	    response=await request.json()
-        if (response.message==='Sucessfull operation'){
-          /*Apart from change the state of the inputs of the forms (and the file), the event that render the new item in the list
-          of products is fired*/
-          let data={
-            productName: this.state.name,
-            availableQuantity: this.state.availableQuantity,
-            price: this.state.price,
-            productPhotoPath: response.photoPath
-          }
-          eventBus.dispatch('addItemToTheList', data)
-          alert('Se ha agregado el producto con exito!')
-          this.setState({
-            name: '',
-            availableQuantity: '',
-            price: ''
-          })
-          //I guess this will cause problems, because is neither a state or a prop, so I'm not sure if can be changed
-          //this.fileInput=React.createRef() 
-        } else{
-          alert(response.message)
-        }
-      } else{
-        alert('Ha ocurrido un error al agregar el producto!');
-      }
-    }
-
-
-    /*So I make double fetch petition. The first with the data of the new product, with content type application/json,
-	and the second with the photo of the producto, with content type mulfipart/form-data*/
-
-    render(){
-      return (
-        <div>
-          <div className="mb-3">
-    	    <p>Descripcion/Nombre del producto:</p>
-    		<input type="text" value={this.state.name} onChange={this.changeProductName} name="a"/>
-  		  </div>
-  		  <div className="mb-3">
-    	    <p>Cantidad disponbile:</p>
-      		<input type="number" value={this.state.availableQuantity} onChange={this.changeProductAvailableQuantity} name="c"/>
-   		  </div>
-  		  <div className="mb-3">
-    	    <p>Precio:</p>
-            <input type="number" value={this.state.price} onChange={this.changeProductPrice} name="d"/>
-          </div>
-  		  <label className="form-label">Imagen/Foto del producto: </label>
-  		  <input type="file" ref={this.fileInput} name="e"/>
-  		  <button className="btn btn-success" onClick={this.sendData} name="f">Agregar Producto</button>
-        </div>
-      )
-    }
-  }
-
-  async function getProducts(){
-    let request=await fetch('/admin/get-products', {method: 'GET', headers: {'Content-Type': 'application/json'}});
-    let response=await request.json();
-    return {products: response.result};
-  }
-
-  (async function test(){
-    /*So... When i update a item, the state (product name, for example) can change to someting like: <input type="text" {this.state.productName} /> from <p> Product name: {this.state.productName} </p> rigth? This is incredible... I love react*/
-
-    /*Well, 2 implementations come tome my mind for make this. The first is the less elegant, so, I will use the second.
-    I create two componentes (textConatainer and inputContainer) without states and without methods. Just two functions.
-    So, int the class item, for each property (name, classification, etc) i will create and aditional prop called "{prop name}conatiner"
-    . So, this aditional property will contain the actual state of the conatiner (html structure) of the prop. So, in the beggining,
-    this prop will be a text container (<p> {propertyName}: {value})</p>) and when the even update occurs, the prop will be a input container
-    (<p>{propertyName} </p><input type="text" defaulValue={value}>) and so on... 
-    Btw, I will use this approach for the buttons "update" and "delete". When a user press update, the update button will disspear.
-    Then, when the user press confirm update or cancel, this last 2 buttons will disspear and the update return...Well... 
-    Maybe the delete button will disspear and return with the update button at the same time, or maybe not, I will decide this later. In the case of delete, a window will advert to the user if he really want to delete the product. Yes or no, and so on...
-    Also, I need resolve the binding between the input value and the state, so, when the input is update, the value sync with the state, so
-    when the user confirm the update, that value will be send to the server for update the data in the database...Btw, if the user
-    cancel the update, then the states will be return to the initial states*/
-
-    function textContainer(propertyName, value){
-      return <p> {propertyName} : {value} </p>
-    }
-
-    function inputContainer(propertyName, value, stateName, changeStateEvent){
-      return <div> 
-               <p>{propertyName}</p>  
-               <input type="text" defaultValue={value} name={stateName} onChange={changeStateEvent}/>
-             </div>
-    }
-    
-    class Item extends React.Component {
-      constructor(props){
-        super(props)
-        this.update=this.update.bind(this)
-        this.delete=this.delete.bind(this)
-        this.handleInputChange=this.handleInputChange.bind(this)
-        this.confirmUpdate=this.confirmUpdate.bind(this)
-        this.cancelUpdate=this.cancelUpdate.bind(this)
-        /*The src of the img of the product will not cotain container. And the buttons state will change between "normal" to 
-        update (will be a jsx consist of pair of buttons, one pair for update and delete, and the other for confir or cancel the update*/
-        this.state={
-          nameContainer: this.props.nameContainer,
-          name: this.props.name,
-          inputName: this.props.name,
-          availableQuantityContainer: this.props.availableQuantityContainer,
-          availableQuantity: this.props.availableQuantity,
-          inputAvailableQuantity: this.props.availableQuantity,
-          priceContainer: this.props.priceContainer,
-          price: this.props.price,
-          inputPrice: this.props.price,
-          src: this.props.src,
-          buttonsState: <div>
-                          <button className="btn btn-primary" onClick={this.update}>Actualizar</button> 
-                          <button className="btn btn-danger" onClick={this.delete}>Eliminar</button>
-                        </div>,
-          isDeleted: false //Initial value for conditional rendering
-        }
-      }
-      
-      update(){
-        this.setState({
-          nameContainer: inputContainer('Nombre', this.state.name, 'inputName', this.handleInputChange),
-          availableQuantityContainer: inputContainer('Cantidad disponible', this.state.availableQuantity, 'inputAvailableQuantity', this.handleInputChange),
-          priceContainer: inputContainer('Precio', this.state.price, 'inputPrice', this.handleInputChange),
-          buttonsState: <div> 
-                          <button type="button" className="btn btn-success" onClick={this.confirmUpdate}>Confirmar actualizacion</button>
-                          <button type="button" className="btn btn-danger" onClick={this.cancelUpdate}>Cancelar</button>
-                        </div>
-        })
-      }
-
-      async handleInputChange(event){ //Async because the setState function is asyncronous.
-        const stateName=event.target.name, newValue=event.target.value
-        await this.setState({
-          [stateName]: newValue
-        })
-      }
-
-      async confirmUpdate(){
-        let request=await fetch('/admin/update-product', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.inputName, availableQuantity:
-          this.state.inputAvailableQuantity, price: this.state.inputPrice})});
-        let response=await request.json();
-        if (response.result==='Operacion exitosa!'){
-          this.setState({
-            name: this.state.inputName,
-            availableQuantity: this.state.inputAvailableQuantity,
-            price: this.state.inputPrice
-          })
-          this.setState({
-          nameContainer: textContainer('Nombre', this.state.name),
-          availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
-          priceContainer: textContainer('Precio', this.state.price),
-          buttonsState: <div>
-                          <button className="btn btn-primary" onClick={this.update}>Actualizar</button> 
-                          <button className="btn btn-danger" onClick={this.delete}>Eliminar</button>
-                        </div>
-          })
-          alert('Se han actualizado los datos del producto con exito!');
-        } else{
-          alert('Ha ocurrido un error al actualizar los datos. Intentelo de nuevo. Si el problema persiste, comuniquese con nosotros');
-        }
-      }
-
-      cancelUpdate(){
-        //Apart from update the containers, I clean the values of the inputs, and return to the actual states 
-        this.setState({
-          nameContainer: textContainer('Nombre', this.state.name),
-          inputName: this.state.name,
-          availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
-          inputAvailableQuantity: this.state.availableQuantity,
-          priceContainer: textContainer('Precio', this.state.price),
-          inputPrice: this.state.price,
-          buttonsState: <div>
-                          <button className="btn btn-primary" onClick={this.update}>Actualizar</button> 
-                          <button className="btn btn-danger" onClick={this.delete}>Eliminar</button>
-                        </div>
-        })
-      }
-
-      async delete(){
-        console.log(this.state.src)
-        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.name, photoPath: this.state.src})})
-        let response=await request.json()
-        if (response.result==='El producto ha sido eliminado!'){
-          alert('El producto ha sido eliminado!')
-          this.setState({isDeleted: true})
-        } else{
-          alert('Error. Try again!')
-        }
-      }
-
-      render(){
-        let item=<li className="list-group-item"> <div>
-            {this.state.nameContainer} 
-            {this.state.availableQuantityContainer} 
-            {this.state.priceContainer}
-            <img src={this.state.src} alt="product photo"/> 
-            {this.state.buttonsState}
-          </div> </li>
-        return (
-          this.state.isDeleted? <div></div>: item
-        )
-      }
-    }
-
-    class SearchProduct extends React.Component {
-      constructor(props){
-        super(props)
-        this.state={
-          characters: ''
-        }
-        this.searchProductsInTheList=this.searchProductsInTheList.bind(this)
-      }
-
-      async searchProductsInTheList(event){
-        await this.setState({characters: event.target.value})
-        eventBus.dispatch('searchProducts', {characters: this.state.characters})
-      }
-
-      render(){
-        return(
-          <div id="searchProduct">
-            <input value={this.state.characters} onChange={this.searchProductsInTheList} type="search" aria-label="Search" placeholder="Buscar producto"/>
-          </div>
-        )
-      }
-    }
-
-    //So, the list, instead of props, will have states, because, the list will be update when the admin add a product (or search a product)
-
-    class List extends React.Component {
-      
-      constructor(props){
-        super(props)
-        this.state={
-          products: this.props.products
-        }
-        this.additem=this.addItem.bind(this)
-      }
-
-      componentDidMount(){
-        eventBus.on('addItemToTheList', data =>{
-          this.addItem(data)
-        })
-
-        eventBus.on('searchProducts', data=>{
-          const characters=new RegExp(`^${data.characters}`)
-          let result=[]
-          this.props.products.forEach(product=>{
-            if (characters.test(product.productName)){
-              result.push(product)
-            }
-          })
-          this.setState({products: result})
-        })
-      }
-
-     addItem(data){
-       let newProductsState=this.state.products
-       newProductsState.push(data)
-       this.setState({
-         products: newProductsState
-       })
-     }
-
-      render(){
-        return (
-          <ul className="list-group">{this.state.products.map((product)=>{
-           return <Item key={product.productName} 
-           nameContainer={textContainer('Nombre', product.productName)} 
-           name={product.productName} 
-           availableQuantityContainer={textContainer('Cantidad disponible', product.availableQuantity)}
-           availableQuantity={product.availableQuantity}
-           priceContainer={textContainer('Precio', product.price)}
-           price={product.price}
-           src={product.productPhotoPath}/>
-          })}</ul>
-        )
-      }
-    }
-
-    let data=await getProducts();
-    const addProductForm=<AddProductForm />
-    const searchProduct=<SearchProduct />
-    const list=<List products={data.products}/>
-    ReactDOM.render(
-      <div>
-        {addProductForm}
-        {searchProduct}
-        {list}
-      </div>,
-      document.getElementById('root')
-    );
-  })();
 </script>
+
+
+<script src="/react.production.min.js"></script>
+<script src="/react-dom.production.min.js"></script>
+
+
+<script type="text/javascript" src="/classes/frontend/admin/inventory-transpiled/add-product-form.js"></script>
+<script type="text/javascript" src="/classes/frontend/admin/inventory-transpiled/item.js"></script>
+<script type="text/javascript" src="/classes/frontend/admin/inventory-transpiled/list.js"></script>
+<script type="text/javascript" src="/classes/frontend/admin/inventory-transpiled/search-product.js"></script>
+<script type="text/javascript" src="/classes/frontend/admin/inventory-transpiled/products-data.js"></script>
+
+<script type="text/javascript" src="/controllers-frontend/admin-transpiled/inventory.js"></script>
 
 </body>
 </html>

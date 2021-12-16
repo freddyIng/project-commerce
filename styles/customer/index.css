@@ -15,3 +15,13 @@ img{
   max-width: 100%;
   height: auto;
 }
+
+.container{
+  display: flex;
+  justify-content: space-between;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+}

@@ -1,6 +1,6 @@
 const router=require('express').Router();
 const viewPath=__dirname.replace('/routes', '/views');
-const classPath=__dirname.replace('/routes', '/classes/backend/');
+const classPath=__dirname.replace('/routes', '/src/classes/backend/');
 const admin=require(`${classPath}admin.js`);
 const purchases=require(`${classPath}purchase.js`);
 const stock=require(classPath+'stock.js');
@@ -107,8 +107,6 @@ const validator=require('validator');
 router.post('/add-product/data', async (req, res)=>{
   if (req.cookies.admin_session===cookieValue){
     req.body.productName=validator.trim(req.body.productName); req.body.productName=validator.escape(req.body.productName);
-    req.body.amount=validator.trim(req.body.amount); req.body.amount=validator.escape(req.body.amount);
-    req.body.price=validator.trim(req.body.price); req.body.price=validator.escape(req.body.price);
     try{
       await stock.create({productName: req.body.productName, 
         availableQuantity: req.body.amount, price: req.body.price});
@@ -176,8 +174,6 @@ router.delete('/delete-product', async (req, res)=>{
 router.put('/update-product', async (req, res)=>{
   if (req.cookies.admin_session===cookieValue){
     req.body.productName=validator.trim(req.body.productName); req.body.productName=validator.escape(req.body.productName);
-    req.body.availableQuantity=validator.trim(req.body.availableQuantity); req.body.amount=validator.escape(req.body.availableQuantity);
-    req.body.price=validator.trim(req.body.price); req.body.price=validator.escape(req.body.price);
     //Btw, optional update photo. I need multer and fs (fs for delete the old photo)
     try{
       let products=await stock.update({
