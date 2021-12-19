@@ -1,5 +1,3 @@
--Definir la informacion de los metodos de pago del comercio. Lo mismo para la informacion de la transaccion del usuario.
-
 -Agregar la fecha y hora de las transacciones. Y tambien, ordenar las transacciones cronologicamente, para que asi el usuario
 (especialmente el administrador) pueda tener una vista mas ordenade, con las mas recientes arriba y las mas viejas abajo.
 
@@ -7,10 +5,16 @@
 lo mismo que si el estado de entrega es "Si". Obviamente, antes de cambiar estado, preguntar al usuario si esta aseguro y advertirle
 al administrador que la decision es irreversible.
 
+-Tambien, si el estado de la transaccion cambia a "invalidado", entonces se debe actualizar la cantidad de productos en la base 
+de datos, ya que no se entregaran al cliente y el stock no sera alterado.
+
 -Falta la verificacion por correo electronico de clientes. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
 asi debido a la funcionalidad de recuperacion de contraseña, ya que enviarla via correo al usuario es el estandar.
 Pero... aun asi, podria implementar otro metodo, algo asi como preguntas aleatorias de seguridad, etc.
+
+-Agregar configuracion de la cuenta (tanto para el administrador como para el cliente). El administrador podra cambiar su nombre
+de usuario y contraseña. El cliente su correo y contraseña.
 
 En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
@@ -33,7 +37,7 @@ no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria
 
 -Test de rendimiento
 
--Aplicar ajustes de seguridad
+-Aplicar ajustes de seguridad (https, firewall, ssh seguro, kerdel hardening, helmetjs, etc)
 
 -Test de seguridad (pentesting)
 

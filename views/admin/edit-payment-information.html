@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="/admin/new-purchases-notification.css">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+      .center{
+        display: flex;
+        justify-content: center;
+      }
+    </style>
 </head>
 <body>
 
@@ -40,113 +46,91 @@
   });
 </script>
 
-<h3>Bancos</h3>
-<p>Inserta numero de cuenta si tienes cuenta en el banco de tu eleccion</p>
-<div id="banks">
-  <label>Banco de Venezuela</label>
-  <input type="text" class="form-control" id="Banco de Venezuela">
-  <label>Banco Mercantil</label>
-  <input type="text" class="form-control" id="Banco Mercantil">
-  <label>Banco BBVA Provincial</label>
-  <input type="text" class="form-control" id="Banco BBVA Provincial">
-  <label>Banco Banesco</label>
-  <input type="text" class="form-control" id="Banco Banesco">
-  <label>Banco BOD</label>
-  <input type="text" class="form-control" id="Banco BOD">
-  <label>Banco Bicentenario</label>
-  <input type="text" class="form-control" id="Banco Bicentenario">
-  <label>Banco Bancaribe</label>
-  <input type="text" class="form-control" id="Banco Bancaribe">
-  <label>Banco del Tesoro</label>
-  <input type="text" class="form-control" id="Banco del Tesoro">
-  <label>Banca Amiga</label>
-  <input type="text" class="form-control" id="Banca Amiga">
-  <label>Banco Activo</label>
-  <input type="text" class="form-control" id="Banco Activo">
+<div class="center">
+  <button type="button" class="btn btn-success" id="update">Actualizar datos</button>
 </div>
 
-<h3>Dolares electronicos</h3>
-<p>Introduce tu email, numero telefonico o identificador equivalente de metodos de pago de tu eleccion</p>
-<div id="other">
-<label>Zelle</label>
-<input type="text" class="form-control" id="Zelle">
-<label>Airtm</label>
-<input type="text" class="form-control" id="Airtm">
-<label>Reserve</label>
-<input type="text" class="form-control" id="Reserve">
-<label>Paypal</label>
-<input type="text" class="form-control" id="Paypal">
-</div>
+<table class="table">
+  <tbody id="banks">
+    <thead>
+      <tr>
+        <th scope="col">Banco</th>
+        <th scope="col">Rif (o cedula)</th>
+        <th scope="col">Numero de cuenta</th>
+      </tr>
+    </thead>
+  </tbody>
+</table>
 
-<p>Inserta tu direccion de billetera en las criptomonedas de tu interes</p>
-<h3>Criptomonedas</h3>
-<div id="cryptos">
-<label>Bitcoin</label>
-<input type="text" class="form-control" id="Bitcoin">
-<label>Ethereum</label>
-<input type="text" class="form-control" id="Ethereum">
-<label>Tether</label>
-<input type="text" class="form-control" id="Tether">
-<label>Litecoin</label>
-<input type="text" class="form-control" id="Litecoin">
-<label>Dash</label>
-<input type="text" class="form-control" id="Dash">
-<label>XRP</label>
-<input type="text" class="form-control" id="XRP">
-<label>EOS</label>
-<input type="text" class="form-control" id="EOS">
-<label>Dodgecoin</label>
-<input type="text" class="form-control" id="Dodgecoin">
-</div>
-
-<button type="button" class="btn btn-primary" id="update">Actualizar</button>
 
 <script type="text/javascript" src="/validator.min.js"></script>
 <script type="text/javascript">
-  (async function getPaymentInformation(){
-    let request=await fetch('/admin/payment-information', {method: 'GET', });
-    let response=await request.json();
-    if (response.message==='Sucessfull operation'){
-      response.result[0].paymentInformation.forEach(method=>{
-        let inputElement=document.getElementById(method.name);
-        inputElement.value=method.referenceNumber;
-      });
-    } else{
-      alert('Ha ocurrido un error al momento de recuperar su informacion de pago!');
-    }
-  })();
+   const nameBanks=['Venezuela', 'Banesco', 'Mercantil', 'BBVA Provincial', 'BOD', 'Bicentenario', 'Bancaribe'];
+   let banks=[];
+   for (let i=1; i<=7; i++){
+     banks.push('Banco');
+   }
+   for (let i=0; i<7; i++){
+     banks[i]+=' '+nameBanks[i];
+   }
+   const banksTable=document.getElementById('banks'); //This global const will be used in the update event to
+   for (let i=0; i<7; i++){
+     let row=document.createElement('tr');
+     row.id=banks[i];
+     let headColumn=document.createElement('th');
+     headColumn.scope='col';
+     let dniOrRifColumn=document.createElement('td'), numberAccountColumn=document.createElement('td');
+     let dniCheck=document.createElement('input'), rifCheck=document.createElement('input');
+     let dniCheckLabel=document.createElement('label'), rifCheckLabel=document.createElement('label');
+     let dniOrRifInput=document.createElement('input'), numberAccountInput=document.createElement('input');
+     headColumn.textContent=banks[i];
+     headColumn;
+     dniCheck.type='radio';
+     rifCheck.type='radio';
+     dniCheck.value='V';
+     rifCheck.value='G';
+     dniCheck.name='idType'+i.toString();
+     rifCheck.name='idType'+i.toString();
+     dniCheckLabel.for='V';
+     dniCheckLabel.textContent='V';
+     dniCheckLabel.className='form-check-label';
+     rifCheckLabel.for='G';
+     rifCheckLabel.textContent='G';
+     rifCheckLabel.className='form-check-label'
+     dniOrRifInput.className='form-control';
+     numberAccountInput.className='form-control';
+     dniOrRifColumn.appendChild(dniCheck);
+     dniOrRifColumn.appendChild(dniCheckLabel);
+     dniOrRifColumn.appendChild(rifCheck);
+     dniOrRifColumn.appendChild(rifCheckLabel);
+     dniOrRifColumn.appendChild(dniOrRifInput);
+     numberAccountColumn.appendChild(numberAccountInput);
+     row.appendChild(headColumn);
+     row.appendChild(dniOrRifColumn);
+     row.appendChild(numberAccountColumn);
+     banksTable.appendChild(row);
+   }
 
-  function getData(idFatherNode, initialValue){ //Initial value, because the number of child can be par or impar
-    let fatherNode=document.getElementById(idFatherNode).children, data=[];
-    for (let i=initialValue? 1 : 2; i<fatherNode.length; i+=2){
-      //I just sanitize the values. I'm not validating because I'm lazy
-      fatherNode[i].value=validator.trim(fatherNode[i].value);
-      fatherNode[i].value=validator.escape(fatherNode[i].value);
-      data.push({
-        name: fatherNode[i-1].textContent,
-        referenceNumber: fatherNode[i].value
-      })
+  update.addEventListener('click', async ()=>{
+    let bankRows=banksTable.children, data=[];
+    for (let i=0; i<banks.length; i++){
+      let bankRowChilds=bankRows[i].children;
+      let bankIdColumnOfActualRow=bankRowChilds[1], bankNumberAccountColumnOfActualRow=bankRowChilds[2];
+      let dniValue=bankIdColumnOfActualRow.children[0].checked, rifValue=bankIdColumnOfActualRow.children[2].checked
+      let idValueActualBankColumn=bankIdColumnOfActualRow.children[4].value;
+      let numberBankAccount=bankNumberAccountColumnOfActualRow.children[0].value;
+      let dniOrRifValue=dniValue? 'V' : rifValue? 'G' : '';
+      data.push({ name: banks[i], id: dniOrRifValue+'-'+idValueActualBankColumn, accountNumber: numberBankAccount });
     }
-    return data;
-  }
-
-  function joinArrays(arrayOfArrays){
-    let result=[];
-    for (let i=0; i<arrayOfArrays.length; i++){
-      for (let j=0; j<arrayOfArrays[i].length; j++){
-        result.push(arrayOfArrays[i][j]);
+    //Next I clean the data
+    let cleanData=[]
+    for (let i=0; i<data.length; i++){
+      if (data[i].id!=='-' && data[i].id[0]!=='-' && data[i].accountNumber!==''){
+        cleanData.push(data[i]);
       }
     }
-    return result;
-  }
-  let update=document.getElementById('update');
-  update.addEventListener('click', async ()=>{
-  	let banks=getData('banks', true);
-  	let otherMethods=getData('other', true);
-  	let cryptos=getData('cryptos', true);    
-  	let paymentMethodsData=joinArrays([banks, otherMethods, cryptos]);
-    paymentMethodsData=JSON.stringify(paymentMethodsData);
-  	let request=await fetch('/admin/edit-payment-information', {method: 'PUT', headers: { 'Content-Type': 'application/json'}, body: paymentMethodsData});
+    
+  	let request=await fetch('/admin/edit-payment-information', {method: 'PUT', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(cleanData)});
   	let response=await request.json();
     if (response.result==='Sucessfull operation'){
       alert('Se han actualizado los datos con exito!');
@@ -154,6 +138,24 @@
       alert('Ha ocurrido un error. Intentelo de nuevo');
     }
   });
+
+  //I recovery (if the admin has done any change) of the data for paste in the table
+  (async ()=>{
+    let request=await fetch('/admin/payment-information', {method: 'GET'});
+    let response=await request.json();
+    if (response.message==='Sucessfull operation'){
+      if (response.result[0].paymentInformation.length>0){
+      	response.result[0].paymentInformation.forEach(bank=>{
+          let actualBankRow=document.getElementById(bank.name);
+          bank.id[0]==='V'? actualBankRow.children[1].children[0].checked=true : actualBankRow.children[1].children[2].checked=true;
+          actualBankRow.children[1].children[4].value=bank.id.replace(bank.id[0]+bank.id[1], '');
+          actualBankRow.children[2].children[0].value=bank.accountNumber;
+      	});
+      }
+    } else{
+      alert('Ha ocurrido un error al momento de recuperar su informacion de pago');
+    }
+  })();
 </script>
 </body>
 </html>

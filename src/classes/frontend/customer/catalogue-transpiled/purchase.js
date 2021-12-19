@@ -114,7 +114,7 @@ class Purchase extends React.Component {
     }, /*#__PURE__*/React.createElement("p", null, "Estos son los metodos de pago y los datos usados por nombre del comercio. Haz la respectiva transaccion con alguno de estos metodos y luego confirma la transaccion"), this.props.paymentMethods.map(method => {
       return /*#__PURE__*/React.createElement("p", {
         key: method.name
-      }, method.name + ' : ' + method.referenceNumber);
+      }, method.name + ' ' + method.id + ' ' + method.accountNumber);
     }), /*#__PURE__*/React.createElement("p", null, "El precio total de tu compra es ", this.state.totalPrice), /*#__PURE__*/React.createElement("p", null, "Selecciona tu metodo de pago"), /*#__PURE__*/React.createElement("select", {
       className: "form-control",
       id: "exampleFormControlSelect1",

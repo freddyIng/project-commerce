@@ -93,7 +93,7 @@
       	y luego confirma la transaccion</p>
         {this.props.paymentMethods.map(method=>{
           return <p key={method.name}>
-          	       {method.name+' : '+method.referenceNumber}
+          	       {method.name+' '+method.id+' '+method.accountNumber}
           	     </p>
         })}
         <p>El precio total de tu compra es {this.state.totalPrice}</p>

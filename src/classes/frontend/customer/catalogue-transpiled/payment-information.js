@@ -13,15 +13,7 @@ class paymentInformation {
     let response = await request.json();
 
     if (response.message === 'Sucessfull operation') {
-      /*Because not necessary some commerce use all the payment methods, I will filter what methods are use knowing the value
-      of the referenceNumber. If is '', then is not used*/
-      let paymentMethodsData = response.result[0].paymentInformation; //This is not a string... is a object, so, JSON.parse is innecesary
-
-      paymentMethodsData.forEach(method => {
-        if (method.referenceNumber !== '') {
-          this.data.push(method);
-        }
-      });
+      this.data = response.result[0].paymentInformation; //This is not a string... is a object, so, JSON.parse is innecesary
     }
 
     return this.data;
