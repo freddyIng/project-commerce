@@ -150,12 +150,14 @@ router.get('/purchases', (req, res)=>{
 router.get('/purchases/data', async (req, res)=>{
   try{
     let data=await purchases.findAll({
+      order : [ ['id', 'DESC'] ],
       where: {
         customerDni: req.user
       }
     });
     res.json({message: 'Sucessfull operation', result: data});
   } catch(err){
+    console.log(err);
     res.json({message: 'Failed operation'});
   }
 });

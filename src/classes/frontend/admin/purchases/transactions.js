@@ -1,4 +1,5 @@
 class transactions{
+
   async getTransactions(){
     let request=await fetch('/admin/purchases/data', {method: 'GET', headers: {'Content-Type': 'application/json'}})
     let response=await request.json()

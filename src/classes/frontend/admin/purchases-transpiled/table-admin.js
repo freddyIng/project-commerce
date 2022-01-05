@@ -1,3 +1,141 @@
+class PurchaseVerificationStatus extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      viewState: this.props.verificationStatus,
+      selectValue: this.props.verificationStatus
+    };
+    this.changeTransactionVerificationStatus = this.changeTransactionVerificationStatus.bind(this);
+  }
+
+  async changeTransactionVerificationStatus(event, verificationOrDelivery, customerDni, referenceTransactionNumber) {
+    if (window.confirm('Estas seguro de cambiar el estado de la transaccion? Esta accion es irreversible!')) {
+      this.setState({
+        selectValue: event.target.value
+      });
+      const status = verificationOrDelivery ? 'verification-status' : 'delivery-status';
+      let data = {
+        newState: event.target.value,
+        dni: customerDni,
+        transactionNumber: referenceTransactionNumber
+      };
+      data = JSON.stringify(data);
+      let request = await fetch(`/admin/purchases/change/${status}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: data
+      });
+      let response = await request.json();
+
+      if (response.message === 'Sucessfull operation') {
+        socket.emit('change status purchase', {
+          dni: customerDni,
+          statusType: verificationOrDelivery ? 'Verificacion' : 'Entrega',
+          state: event.target.value,
+          referenceNumber: referenceTransactionNumber
+        });
+        this.setState({
+          viewState: data.newState
+        });
+        alert('El estado de la transaccion ha sido cambiado con exito!');
+      } else {
+        this.setState({
+          selectValue: 'Pendiente'
+        });
+        alert('Ha ocurrido un error. Intentelo de nuevo');
+      }
+    } else {
+      /*I return the previous value of the select element to the default (pendiente). Is enough to change the state again
+      to "Pendiente" */
+      this.setState({
+        selectValue: 'Pendiente'
+      });
+    }
+  }
+
+  render() {
+    return this.state.viewState === 'Pendiente' ? /*#__PURE__*/React.createElement("select", {
+      value: this.state.selectValue,
+      className: "form-select",
+      onChange: e => this.changeTransactionVerificationStatus(e, true, this.props.customerDni, this.props.referenceTransactionNumber)
+    }, /*#__PURE__*/React.createElement("option", {
+      value: 'Pendiente'
+    }, 'Pendiente'), /*#__PURE__*/React.createElement("option", {
+      value: 'Validada'
+    }, 'Validada'), /*#__PURE__*/React.createElement("option", {
+      value: 'Invalidada'
+    }, 'Invalidada')) : /*#__PURE__*/React.createElement("p", null, this.state.selectValue);
+  }
+
+}
+
+class PurchaseDeliveryStatus extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      viewState: this.props.deliveryStatus ? 'Si' : 'No',
+      selectValue: this.props.deliveryStatus ? 'Si' : 'No'
+    };
+    this.changeTransactionDeliveryStatus = this.changeTransactionDeliveryStatus.bind(this);
+  }
+
+  async changeTransactionDeliveryStatus(event, verificationOrDelivery, customerDni, referenceTransactionNumber) {
+    if (window.confirm('Estas seguro de cambiar el estado de la transaccion? Esta accion es irreversible!')) {
+      this.setState({
+        selectValue: event.target.value
+      });
+      const status = verificationOrDelivery ? 'verification-status' : 'delivery-status';
+      let data = {
+        newState: event.target.value,
+        dni: customerDni,
+        transactionNumber: referenceTransactionNumber
+      };
+      data = JSON.stringify(data);
+      let request = await fetch(`/admin/purchases/change/${status}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: data
+      });
+      let response = await request.json();
+
+      if (response.message === 'Sucessfull operation') {
+        socket.emit('change status purchase', {
+          dni: customerDni,
+          statusType: verificationOrDelivery ? 'Verificacion' : 'Entrega',
+          state: event.target.value,
+          referenceNumber: referenceTransactionNumber
+        });
+        this.setState({
+          viewState: 'Si'
+        });
+        alert('El estado de la transaccion ha sido cambiado con exito!');
+      } else {
+        alert('Ha ocurrido un error. Intentelo de nuevo');
+        this.setState({
+          selectValue: 'No'
+        });
+      }
+    }
+  }
+
+  render() {
+    return this.state.viewState === 'No' ? /*#__PURE__*/React.createElement("select", {
+      value: this.state.selectValue,
+      className: "form-select",
+      onChange: e => this.changeTransactionDeliveryStatus(e, false, this.props.customerDni, this.props.referenceTransactionNumber)
+    }, /*#__PURE__*/React.createElement("option", {
+      value: 'No'
+    }, 'No'), /*#__PURE__*/React.createElement("option", {
+      value: 'Si'
+    }, 'Si')) : /*#__PURE__*/React.createElement("p", null, this.state.selectValue);
+  }
+
+}
+
 class TableAdmin extends React.Component {
   constructor(props) {
     super(props);
@@ -65,24 +203,6 @@ class TableAdmin extends React.Component {
     return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("table", {
       className: "table"
     }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Cedula del comprador"), /*#__PURE__*/React.createElement("th", null, "Productos"), /*#__PURE__*/React.createElement("th", null, "Precio total"), /*#__PURE__*/React.createElement("th", null, "Metodo de pago"), /*#__PURE__*/React.createElement("th", null, "Numero de referencia de la transaccion"), /*#__PURE__*/React.createElement("th", null, "Estado de la transaccion"), /*#__PURE__*/React.createElement("th", null, "Pedido entregado"))), /*#__PURE__*/React.createElement("tbody", null, this.state.purchases.map(purchase => {
-      let remainingVerificationStatus = [];
-
-      switch (purchase.verificationStatus) {
-        case 'Pendiente':
-          remainingVerificationStatus.push('Validada');
-          remainingVerificationStatus.push('Invalidada');
-          break;
-
-        case 'Validada':
-          remainingVerificationStatus.push('Invalidada');
-          remainingVerificationStatus.push('Pendiente');
-          break;
-
-        case 'Invalidada':
-          remainingVerificationStatus.push('Validada');
-          remainingVerificationStatus.push('Pendiente');
-      }
-
       return /*#__PURE__*/React.createElement("tr", {
         key: purchase.referenceTransactionNumber
       }, /*#__PURE__*/React.createElement("td", null, purchase.customerDni), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
@@ -91,23 +211,15 @@ class TableAdmin extends React.Component {
         "data-bs-toggle": "modal",
         "data-bs-target": "#products",
         onClick: () => this.changeModalState(purchase.items)
-      }, "Ver productos")), /*#__PURE__*/React.createElement("td", null, purchase.totalPrice), /*#__PURE__*/React.createElement("td", null, purchase.paymentMethod), /*#__PURE__*/React.createElement("td", null, purchase.referenceTransactionNumber), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("select", {
-        className: "form-select",
-        onChange: e => this.changeTransactionStatus(e, true, purchase.customerDni, purchase.referenceTransactionNumber)
-      }, /*#__PURE__*/React.createElement("option", {
-        value: purchase.verificationStatus
-      }, purchase.verificationStatus), /*#__PURE__*/React.createElement("option", {
-        value: remainingVerificationStatus[0]
-      }, remainingVerificationStatus[0]), /*#__PURE__*/React.createElement("option", {
-        value: remainingVerificationStatus[1]
-      }, remainingVerificationStatus[1]))), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("select", {
-        className: "form-select",
-        onChange: e => this.changeTransactionStatus(e, false, purchase.customerDni, purchase.referenceTransactionNumber)
-      }, /*#__PURE__*/React.createElement("option", {
-        value: purchase.deliveryStatus ? 'Si' : 'No'
-      }, purchase.deliveryStatus ? 'Si' : 'No'), /*#__PURE__*/React.createElement("option", {
-        value: purchase.deliveryStatus ? 'No' : 'Si'
-      }, purchase.deliveryStatus ? 'No' : 'Si'))));
+      }, "Ver productos")), /*#__PURE__*/React.createElement("td", null, purchase.totalPrice), /*#__PURE__*/React.createElement("td", null, purchase.paymentMethod), /*#__PURE__*/React.createElement("td", null, purchase.referenceTransactionNumber), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(PurchaseVerificationStatus, {
+        verificationStatus: purchase.verificationStatus,
+        customerDni: purchase.customerDni,
+        referenceTransactionNumber: purchase.referenceTransactionNumber
+      })), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(PurchaseDeliveryStatus, {
+        deliveryStatus: purchase.deliveryStatus,
+        customerDni: purchase.customerDni,
+        referenceTransactionNumber: purchase.referenceTransactionNumber
+      })));
     }))), /*#__PURE__*/React.createElement("div", {
       className: "modal fade",
       id: "products",

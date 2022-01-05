@@ -1,3 +1,119 @@
+  class PurchaseVerificationStatus extends React.Component{
+
+    constructor(props){
+      super(props)
+      this.state={
+        viewState: this.props.verificationStatus,
+        selectValue: this.props.verificationStatus
+      }
+      this.changeTransactionVerificationStatus=this.changeTransactionVerificationStatus.bind(this)
+    }
+
+    async changeTransactionVerificationStatus(event, verificationOrDelivery, customerDni, referenceTransactionNumber){
+      if (window.confirm('Estas seguro de cambiar el estado de la transaccion? Esta accion es irreversible!')){
+      	this.setState({
+      	  selectValue: event.target.value
+      	})
+        const status=verificationOrDelivery? 'verification-status' : 'delivery-status'
+  	    let data={
+  	      newState: event.target.value,
+  	      dni: customerDni,
+  	      transactionNumber: referenceTransactionNumber
+  	    }
+  	    data=JSON.stringify(data)
+        let request=await fetch(`/admin/purchases/change/${status}`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: data})
+        let response=await request.json()
+        if (response.message==='Sucessfull operation'){
+          socket.emit('change status purchase', {dni: customerDni, statusType: verificationOrDelivery? 'Verificacion' : 'Entrega', state: event.target.value, referenceNumber: referenceTransactionNumber})
+          this.setState({
+            viewState: data.newState
+          })
+          alert('El estado de la transaccion ha sido cambiado con exito!')
+        } else{
+          this.setState({
+      	    selectValue: 'Pendiente'
+      	  })
+          alert('Ha ocurrido un error. Intentelo de nuevo')
+        }
+      } else{
+      	/*I return the previous value of the select element to the default (pendiente). Is enough to change the state again
+      	to "Pendiente" */
+      	this.setState({
+      	  selectValue: 'Pendiente'
+      	})
+      }
+    }
+
+    render(){
+      return (
+        this.state.viewState==='Pendiente'? 
+             <select value={this.state.selectValue} className="form-select" onChange={(e)=>this.changeTransactionVerificationStatus(e, true, this.props.customerDni, this.props.referenceTransactionNumber)}>
+               <option value={'Pendiente'}>{'Pendiente'}</option>
+               <option value={'Validada'}>{'Validada'}</option>
+               <option value={'Invalidada'}>{'Invalidada'}</option>
+             </select>
+                :
+             <p>{this.state.selectValue}</p>
+      )
+    }
+
+  }
+
+  class PurchaseDeliveryStatus extends React.Component{
+
+    constructor(props){
+      super(props)
+      this.state={
+        viewState: this.props.deliveryStatus? 'Si' : 'No',
+        selectValue: this.props.deliveryStatus? 'Si' : 'No'
+      }
+      this.changeTransactionDeliveryStatus=this.changeTransactionDeliveryStatus.bind(this)
+    }
+
+    async changeTransactionDeliveryStatus(event, verificationOrDelivery, customerDni, referenceTransactionNumber){
+      if (window.confirm('Estas seguro de cambiar el estado de la transaccion? Esta accion es irreversible!')){
+      	this.setState({
+      	  selectValue: event.target.value
+      	})
+        const status=verificationOrDelivery? 'verification-status' : 'delivery-status'
+  	    let data={
+  	      newState: event.target.value,
+  	      dni: customerDni,
+  	      transactionNumber: referenceTransactionNumber
+  	    }
+  	    data=JSON.stringify(data)
+        let request=await fetch(`/admin/purchases/change/${status}`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: data})
+        let response=await request.json()
+        if (response.message==='Sucessfull operation'){
+          socket.emit('change status purchase', {dni: customerDni, statusType: verificationOrDelivery? 'Verificacion' : 'Entrega', state: event.target.value, referenceNumber: referenceTransactionNumber})
+          this.setState({
+            viewState: 'Si'
+          })
+          alert('El estado de la transaccion ha sido cambiado con exito!')
+        } else{
+          alert('Ha ocurrido un error. Intentelo de nuevo')
+          this.setState({
+      	    selectValue: 'No'
+          })
+        }
+      }
+    }
+
+    render(){
+      return (
+        this.state.viewState==='No'? 
+            <select value={this.state.selectValue} className="form-select" onChange={(e)=>this.changeTransactionDeliveryStatus(e, false, this.props.customerDni, this.props.referenceTransactionNumber)}>
+              <option value={'No'}>{'No'}</option>
+              <option value={'Si'}>{'Si'}</option>
+            </select>
+                :
+            <p>{this.state.selectValue}</p>
+      )
+    }
+
+  }
+
+
   class TableAdmin extends React.Component{
   constructor(props){
     super(props)
@@ -66,20 +182,6 @@
             </thead>
             <tbody>
               {this.state.purchases.map(purchase=>{
-              	  let remainingVerificationStatus=[]
-              	  switch(purchase.verificationStatus){
-              	    case 'Pendiente':
-              	      remainingVerificationStatus.push('Validada')
-              	      remainingVerificationStatus.push('Invalidada')
-              	    break;
-              	    case 'Validada':
-              	      remainingVerificationStatus.push('Invalidada')
-              	      remainingVerificationStatus.push('Pendiente')
-              	    break;
-              	    case 'Invalidada':
-              	      remainingVerificationStatus.push('Validada')
-              	      remainingVerificationStatus.push('Pendiente')
-              	  }
                   return <tr key={purchase.referenceTransactionNumber}>
                            <td>{purchase.customerDni}</td>
                             <td>
@@ -88,17 +190,12 @@
                            <td>{purchase.totalPrice}</td><td>{purchase.paymentMethod}</td>
                            <td>{purchase.referenceTransactionNumber}</td>
                            <td>
-                           	 <select className="form-select" onChange={(e)=>this.changeTransactionStatus(e, true, purchase.customerDni, purchase.referenceTransactionNumber)}>
-                               <option value={purchase.verificationStatus}>{purchase.verificationStatus}</option>
-                               <option value={remainingVerificationStatus[0]}>{remainingVerificationStatus[0]}</option>
-                               <option value={remainingVerificationStatus[1]}>{remainingVerificationStatus[1]}</option>
-                             </select>
+                             <PurchaseVerificationStatus verificationStatus={purchase.verificationStatus} 
+                             customerDni={purchase.customerDni} referenceTransactionNumber={purchase.referenceTransactionNumber}/>
                            </td>
                            <td>
-                             <select className="form-select" onChange={(e)=>this.changeTransactionStatus(e, false, purchase.customerDni, purchase.referenceTransactionNumber)}>
-                                <option value={purchase.deliveryStatus? 'Si' : 'No'}>{purchase.deliveryStatus? 'Si' : 'No'}</option>
-                                <option value={purchase.deliveryStatus? 'No' : 'Si'}>{purchase.deliveryStatus? 'No' : 'Si'}</option>
-                              </select>
+                             <PurchaseDeliveryStatus deliveryStatus={purchase.deliveryStatus} 
+                             customerDni={purchase.customerDni} referenceTransactionNumber={purchase.referenceTransactionNumber}/>
                             </td>
                          </tr>
               })}

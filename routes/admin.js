@@ -205,7 +205,7 @@ router.get('/purchases', (req, res)=>{
 router.get('/purchases/data', async (req, res)=>{
   if (req.cookies.admin_session===cookieValue){
     try{
-      let data=await purchases.findAll({});
+      let data=await purchases.findAll({order : [ ['id', 'DESC'] ]});
       res.json({message: 'Sucessfull operation', result: data});
     } catch(err){
       console.log(err)

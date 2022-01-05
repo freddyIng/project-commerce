@@ -1,6 +1,7 @@
 class transactions{
+
   async getTransactions(){
-    let request=await fetch(`/customer/purchases/data`, {method: 'GET', headers: {'Content-Type': 'application/json'}})
+    let request=await fetch('/customer/purchases/data', {method: 'GET', headers: {'Content-Type': 'application/json'}})
     let response=await request.json()
     if (response.message==='Sucessfull operation'){
       return response.result

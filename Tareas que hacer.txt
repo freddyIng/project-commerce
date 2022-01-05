@@ -1,12 +1,18 @@
--Agregar la fecha y hora de las transacciones. Y tambien, ordenar las transacciones cronologicamente, para que asi el usuario
-(especialmente el administrador) pueda tener una vista mas ordenade, con las mas recientes arriba y las mas viejas abajo.
-
 -Cristalizar el cambio de estado de las transacciones (si estan validadas o invalidads, no deberia tener opcion de cambio),
 lo mismo que si el estado de entrega es "Si". Obviamente, antes de cambiar estado, preguntar al usuario si esta aseguro y advertirle
-al administrador que la decision es irreversible.
+al administrador que la decision es irreversible. Update: Funcionalidad casi lista. Solo falta agregar el mensaje de 
+advertencia al usuario al momento de cambiar el estado, y tambien, en caso de que la transaccion sea invalidada, cambiar automaticamente
+el estado de entrega a "No", ya que no tendria sentido entregar un pedido cuya transaccion sea invalida. Tambien, me pregunto... 
+Si deberia congelar el cambio de estado de entrega, hasta que cambio el estado de verificacion a "validada", ya
+que, supongo que seria contraproducente entregar un pedido en caso de que este "pendiente" o "invalidada". Sin embargo...
+Tambien esta el hecho de que esa transaccion pueda ser pagada con efectivo, entonces cliente y servidor se pondrian de acuerdo
+en entregar el pedido a cambio del pago equivalente en efectivo, supongo... Pero bueno, la idea es que el sistema sea un
+sistema de pago virtual, no presencial, asi que... no me parece buena idea pasar por alto este detalle
 
 -Tambien, si el estado de la transaccion cambia a "invalidado", entonces se debe actualizar la cantidad de productos en la base 
 de datos, ya que no se entregaran al cliente y el stock no sera alterado.
+
+-En vez de cedula, pedir un nombre de usuario, con minimo 6 y maximo 15 caracteres
 
 -Falta la verificacion por correo electronico de clientes. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
@@ -16,12 +22,13 @@ Pero... aun asi, podria implementar otro metodo, algo asi como preguntas aleator
 -Agregar configuracion de la cuenta (tanto para el administrador como para el cliente). El administrador podra cambiar su nombre
 de usuario y contraseña. El cliente su correo y contraseña.
 
-En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
+-En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
 
 -Mejorar estetica y presentacion.
 
--Posiblemente usar una libreria como croppie para forzar al administrador a recortar la foto para que sea de un tamaño estandar
+-Posiblemente usar una libreria como croppie para forzar al administrador a recortar la foto del producto
+para que sea de un tamaño estandar.
 
 -Mejorar el manejo de errores.
 
@@ -33,11 +40,11 @@ no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria
 
 -Usar nginx
 
--Usar pm2 (o forever?) para ejecutar la aplicacion en el servidor, si el proceso jamas se parara incluso si hay errores
+-Usar pm2 (o forever?) para ejecutar la aplicacion en el servidor, de esta manera, el proceso jamas se parara incluso si hay errores
 
 -Test de rendimiento
 
--Aplicar ajustes de seguridad (https, firewall, ssh seguro, kerdel hardening, helmetjs, etc)
+-Aplicar ajustes de seguridad (https, firewall, ssh seguro, kerdel hardening, helmetjs, fail2ban, etc)
 
 -Test de seguridad (pentesting)
 
