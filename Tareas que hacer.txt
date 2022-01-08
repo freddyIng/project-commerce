@@ -36,5 +36,7 @@ para que sea de un tamaño estandar.
 
 -Test de seguridad (pentesting)
 
+Nota: Algunas funcionalidades probablemente sean omitidas para acelerar el deployment y la oferta del software.
+
 
 
