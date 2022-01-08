@@ -28,6 +28,13 @@
           this.setState({
             viewState: data.newState
           })
+          if (event.target.value==='Invalidada'){
+          	//for retore the stock in case the transaction is invalidated
+          	const data=JSON.stringify({items: this.props.items})
+          	eventBus.dispatch('changeDeliveryStatusToNo', {id: referenceTransactionNumber})
+          	await fetch('/admin/purchases/return-products-to-inventory', {method: 'PUT', 
+          	  headers: {'Content-Type': 'application/json'}, body: data})
+          }
           alert('El estado de la transaccion ha sido cambiado con exito!')
         } else{
           this.setState({
@@ -63,11 +70,37 @@
 
     constructor(props){
       super(props)
+      //It seems like I can not use the same state for at the same time conditional rendering and render in a component
       this.state={
         viewState: this.props.deliveryStatus? 'Si' : 'No',
         selectValue: this.props.deliveryStatus? 'Si' : 'No'
       }
       this.changeTransactionDeliveryStatus=this.changeTransactionDeliveryStatus.bind(this)
+    }
+
+    componentDidMount(){
+      eventBus.on('changeDeliveryStatusToNo', async componentData=>{
+      	/*Now I understand the error... all the components are listening the fire of the event, so, all the components update
+      	his delivery state to false! The solution is receive from the component that fired the event the reference transaction number.
+      	However, all the components keep fetch and make the server working more than the bill, rigth?
+      	So what I can do is use a conditional statement to make only the component with the respective 
+      	reference number execute the corresponding actions.*/
+      	if (this.props.referenceTransactionNumber===componentData.id){
+      	  let data={
+  	        newState: 'No',
+  	        dni: this.props.customerDni,
+  	        transactionNumber: componentData.id
+  	      }
+  	      data=JSON.stringify(data)
+      	  await fetch('/admin/purchases/change/delivery-status', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: data})
+          await this.setState({
+            viewState: 'Si'
+          })
+          await this.setState({
+            selectValue: 'No'
+          })
+      	}
+      })
     }
 
     async changeTransactionDeliveryStatus(event, verificationOrDelivery, customerDni, referenceTransactionNumber){
@@ -101,11 +134,13 @@
 
     render(){
       return (
-        this.state.viewState==='No'? 
+        this.state.viewState==='No'? this.props.verificationStatus!=='Invalidada'?
             <select value={this.state.selectValue} className="form-select" onChange={(e)=>this.changeTransactionDeliveryStatus(e, false, this.props.customerDni, this.props.referenceTransactionNumber)}>
               <option value={'No'}>{'No'}</option>
               <option value={'Si'}>{'Si'}</option>
             </select>
+                :
+            <p>No</p>
                 :
             <p>{this.state.selectValue}</p>
       )
@@ -191,11 +226,13 @@
                            <td>{purchase.referenceTransactionNumber}</td>
                            <td>
                              <PurchaseVerificationStatus verificationStatus={purchase.verificationStatus} 
-                             customerDni={purchase.customerDni} referenceTransactionNumber={purchase.referenceTransactionNumber}/>
+                             customerDni={purchase.customerDni} referenceTransactionNumber={purchase.referenceTransactionNumber}
+                             items={purchase.items}/>
                            </td>
                            <td>
                              <PurchaseDeliveryStatus deliveryStatus={purchase.deliveryStatus} 
-                             customerDni={purchase.customerDni} referenceTransactionNumber={purchase.referenceTransactionNumber}/>
+                             customerDni={purchase.customerDni} referenceTransactionNumber={purchase.referenceTransactionNumber}
+                             verificationStatus={purchase.verificationStatus} />
                             </td>
                          </tr>
               })}

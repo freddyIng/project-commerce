@@ -39,6 +39,24 @@ class PurchaseVerificationStatus extends React.Component {
         this.setState({
           viewState: data.newState
         });
+
+        if (event.target.value === 'Invalidada') {
+          //for retore the stock in case the transaction is invalidated
+          const data = JSON.stringify({
+            items: this.props.items
+          });
+          eventBus.dispatch('changeDeliveryStatusToNo', {
+            id: referenceTransactionNumber
+          });
+          await fetch('/admin/purchases/return-products-to-inventory', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: data
+          });
+        }
+
         alert('El estado de la transaccion ha sido cambiado con exito!');
       } else {
         this.setState({
@@ -73,12 +91,44 @@ class PurchaseVerificationStatus extends React.Component {
 
 class PurchaseDeliveryStatus extends React.Component {
   constructor(props) {
-    super(props);
+    super(props); //It seems like I can not use the same state for at the same time conditional rendering and render in a component
+
     this.state = {
       viewState: this.props.deliveryStatus ? 'Si' : 'No',
       selectValue: this.props.deliveryStatus ? 'Si' : 'No'
     };
     this.changeTransactionDeliveryStatus = this.changeTransactionDeliveryStatus.bind(this);
+  }
+
+  componentDidMount() {
+    eventBus.on('changeDeliveryStatusToNo', async componentData => {
+      /*Now I understand the error... all the components are listening the fire of the event, so, all the components update
+      his delivery state to false! The solution is receive from the component that fired the event the reference transaction number.
+      However, all the components keep fetch and make the server working more than the bill, rigth?
+      So what I can do is use a conditional statement to make only the component with the respective 
+      reference number execute the corresponding actions.*/
+      if (this.props.referenceTransactionNumber === componentData.id) {
+        let data = {
+          newState: 'No',
+          dni: this.props.customerDni,
+          transactionNumber: componentData.id
+        };
+        data = JSON.stringify(data);
+        await fetch('/admin/purchases/change/delivery-status', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: data
+        });
+        await this.setState({
+          viewState: 'Si'
+        });
+        await this.setState({
+          selectValue: 'No'
+        });
+      }
+    });
   }
 
   async changeTransactionDeliveryStatus(event, verificationOrDelivery, customerDni, referenceTransactionNumber) {
@@ -123,7 +173,7 @@ class PurchaseDeliveryStatus extends React.Component {
   }
 
   render() {
-    return this.state.viewState === 'No' ? /*#__PURE__*/React.createElement("select", {
+    return this.state.viewState === 'No' ? this.props.verificationStatus !== 'Invalidada' ? /*#__PURE__*/React.createElement("select", {
       value: this.state.selectValue,
       className: "form-select",
       onChange: e => this.changeTransactionDeliveryStatus(e, false, this.props.customerDni, this.props.referenceTransactionNumber)
@@ -131,7 +181,7 @@ class PurchaseDeliveryStatus extends React.Component {
       value: 'No'
     }, 'No'), /*#__PURE__*/React.createElement("option", {
       value: 'Si'
-    }, 'Si')) : /*#__PURE__*/React.createElement("p", null, this.state.selectValue);
+    }, 'Si')) : /*#__PURE__*/React.createElement("p", null, "No") : /*#__PURE__*/React.createElement("p", null, this.state.selectValue);
   }
 
 }
@@ -214,11 +264,13 @@ class TableAdmin extends React.Component {
       }, "Ver productos")), /*#__PURE__*/React.createElement("td", null, purchase.totalPrice), /*#__PURE__*/React.createElement("td", null, purchase.paymentMethod), /*#__PURE__*/React.createElement("td", null, purchase.referenceTransactionNumber), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(PurchaseVerificationStatus, {
         verificationStatus: purchase.verificationStatus,
         customerDni: purchase.customerDni,
-        referenceTransactionNumber: purchase.referenceTransactionNumber
+        referenceTransactionNumber: purchase.referenceTransactionNumber,
+        items: purchase.items
       })), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement(PurchaseDeliveryStatus, {
         deliveryStatus: purchase.deliveryStatus,
         customerDni: purchase.customerDni,
-        referenceTransactionNumber: purchase.referenceTransactionNumber
+        referenceTransactionNumber: purchase.referenceTransactionNumber,
+        verificationStatus: purchase.verificationStatus
       })));
     }))), /*#__PURE__*/React.createElement("div", {
       className: "modal fade",

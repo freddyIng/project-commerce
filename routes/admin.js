@@ -270,6 +270,27 @@ router.get('/purchases/unseen-purchases', async (req, res)=>{
   }
 });
 
+
+const connectionPoolPath=__dirname.replace('/routes', '');
+const dbConnector=require(connectionPoolPath+'/connection-pool.js');
+const sequelize=dbConnector.getPool();
+
+router.put('/purchases/return-products-to-inventory', async (req, res)=>{
+  /*When an invalid transaction is made, then the inventory must be restored, since the 
+  products of that order will not be delivered*/
+  try{
+    /*for some reason, the array of items is the body, not a property of body, so req.body.lengt and req.body[i]
+    and such*/
+    for (let i=0; i<req.body.items.length; i++){
+      await sequelize.query(`UPDATE stocks SET availablequantity=availablequantity+${req.body.items[i].amount} WHERE productname='${req.body.items[i].name}'`);
+    }
+    return 
+  } catch(err){
+    console.log(err)
+    return 
+  }
+});
+
 router.get('/account-settings', (req, res)=>{
   if (req.cookies.admin_session===cookieValue){
     res.sendFile(viewPath+'/account-settings-commerce.html');
