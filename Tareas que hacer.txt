@@ -1,6 +1,7 @@
--En vez de cedula, pedir un nombre de usuario, con minimo 6 y maximo 15 caracteres
+-La aplicacion funciona mal en el navegador del telefono de mi mama... Eso quiere decir que necesito usar babel para transpilar
+a ES5, no solo mi codigo propio, si no tambien el codigo javascript de bootstrap y react?
 
--En pantallas mas pequeñas, no se puede ver el boton de "quitar producto" en el carrito de compra. Corregir esto.
+-En vez de cedula, pedir un nombre de usuario, con minimo 6 y maximo 15 caracteres
 
 -Falta la verificacion por correo electronico de clientes. Usando 
 nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
@@ -12,11 +13,6 @@ de usuario y contraseña. El cliente su correo y contraseña.
 
 -En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
-
--Mejorar estetica y presentacion.
-
--Posiblemente usar una libreria como croppie para forzar al administrador a recortar la foto del producto
-para que sea de un tamaño estandar.
 
 -Mejorar el manejo de errores.
 

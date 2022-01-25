@@ -113,7 +113,7 @@
               <tbody>
                 {this.state.items.map(item=>{
                   return <tr key={item.name}>
-                           <td>{item.name}</td><td>{item.price}</td><td>{item.amount}</td><td><img src={item.src}/></td><td><button onClick={()=>this.deleteItem(item.name)} className="btn btn-danger">Quitar</button></td>
+                           <td>{item.name}</td><td>{item.price}</td><td>{item.amount}</td><td><button onClick={()=>this.deleteItem(item.name)} className="btn btn-danger">Quitar</button></td>
                          </tr>
                 })}
               </tbody>

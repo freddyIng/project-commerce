@@ -12,8 +12,8 @@ body{
 
 img{
   margin: 1em;
-  max-width: 100%;
-  height: auto;
+  width: 80px;
+  heigth: 80px;
 }
 
 .container{

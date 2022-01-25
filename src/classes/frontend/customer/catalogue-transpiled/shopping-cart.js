@@ -142,9 +142,7 @@ class ShoppingCart extends React.Component {
     }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Producto"), /*#__PURE__*/React.createElement("th", null, "Precio"), /*#__PURE__*/React.createElement("th", null, "Cantidad"))), /*#__PURE__*/React.createElement("tbody", null, this.state.items.map(item => {
       return /*#__PURE__*/React.createElement("tr", {
         key: item.name
-      }, /*#__PURE__*/React.createElement("td", null, item.name), /*#__PURE__*/React.createElement("td", null, item.price), /*#__PURE__*/React.createElement("td", null, item.amount), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("img", {
-        src: item.src
-      })), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
+      }, /*#__PURE__*/React.createElement("td", null, item.name), /*#__PURE__*/React.createElement("td", null, item.price), /*#__PURE__*/React.createElement("td", null, item.amount), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
         onClick: () => this.deleteItem(item.name),
         className: "btn btn-danger"
       }, "Quitar")));
