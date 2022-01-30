@@ -1,5 +1,7 @@
 body{
   font-family: monospace;
+  background: black;
+  color: white;
 }
 
 #login{
@@ -13,7 +15,7 @@ body{
 img{
   margin: 1em;
   width: 80px;
-  heigth: 80px;
+  height: 80px;
 }
 
 .container{
