@@ -20,9 +20,6 @@
         /*The src of the img of the product will not cotain container. And the buttons state will change between "normal" to 
         update (will be a jsx consist of pair of buttons, one pair for update and delete, and the other for confir or cancel the update*/
         this.state={
-          nameContainer: this.props.nameContainer,
-          name: this.props.name,
-          inputName: this.props.name,
           availableQuantityContainer: this.props.availableQuantityContainer,
           availableQuantity: this.props.availableQuantity,
           inputAvailableQuantity: this.props.availableQuantity,
@@ -40,7 +37,6 @@
       
       update(){
         this.setState({
-          nameContainer: inputContainer('Nombre', this.state.name, 'inputName', this.handleInputChange),
           availableQuantityContainer: inputContainer('Cantidad disponible', this.state.availableQuantity, 'inputAvailableQuantity', this.handleInputChange),
           priceContainer: inputContainer('Precio', this.state.price, 'inputPrice', this.handleInputChange),
           buttonsState: <div> 
@@ -58,7 +54,7 @@
       }
 
       async confirmUpdate(){
-        let request=await fetch('/admin/update-product', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.inputName, availableQuantity:
+        let request=await fetch('/admin/update-product', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.props.name, availableQuantity:
           this.state.inputAvailableQuantity, price: this.state.inputPrice})});
         let response=await request.json();
         if (response.result==='Operacion exitosa!'){
@@ -68,7 +64,6 @@
             price: this.state.inputPrice
           })
           this.setState({
-          nameContainer: textContainer('Nombre', this.state.name),
           availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
           priceContainer: textContainer('Precio', this.state.price),
           buttonsState: <div>
@@ -85,8 +80,6 @@
       cancelUpdate(){
         //Apart from update the containers, I clean the values of the inputs, and return to the actual states 
         this.setState({
-          nameContainer: textContainer('Nombre', this.state.name),
-          inputName: this.state.name,
           availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
           inputAvailableQuantity: this.state.availableQuantity,
           priceContainer: textContainer('Precio', this.state.price),
@@ -100,7 +93,7 @@
 
       async delete(){
         console.log(this.state.src)
-        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.state.name, photoPath: this.state.src})})
+        let request=await fetch('/admin/delete-product', {method: 'DELETE', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({productName: this.props.name, photoPath: this.state.src})})
         let response=await request.json()
         if (response.result==='El producto ha sido eliminado!'){
           alert('El producto ha sido eliminado!')
@@ -112,7 +105,7 @@
 
       render(){
         let item=<li className="list-group-item"> <div>
-            {this.state.nameContainer} 
+            {this.props.name} 
             {this.state.availableQuantityContainer} 
             {this.state.priceContainer}
             <img src={this.state.src} alt="product photo"/> 

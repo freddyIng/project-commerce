@@ -23,9 +23,6 @@ class Item extends React.Component {
     update (will be a jsx consist of pair of buttons, one pair for update and delete, and the other for confir or cancel the update*/
 
     this.state = {
-      nameContainer: this.props.nameContainer,
-      name: this.props.name,
-      inputName: this.props.name,
       availableQuantityContainer: this.props.availableQuantityContainer,
       availableQuantity: this.props.availableQuantity,
       inputAvailableQuantity: this.props.availableQuantity,
@@ -47,7 +44,6 @@ class Item extends React.Component {
 
   update() {
     this.setState({
-      nameContainer: inputContainer('Nombre', this.state.name, 'inputName', this.handleInputChange),
       availableQuantityContainer: inputContainer('Cantidad disponible', this.state.availableQuantity, 'inputAvailableQuantity', this.handleInputChange),
       priceContainer: inputContainer('Precio', this.state.price, 'inputPrice', this.handleInputChange),
       buttonsState: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
@@ -78,7 +74,7 @@ class Item extends React.Component {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        productName: this.state.inputName,
+        productName: this.props.name,
         availableQuantity: this.state.inputAvailableQuantity,
         price: this.state.inputPrice
       })
@@ -92,7 +88,6 @@ class Item extends React.Component {
         price: this.state.inputPrice
       });
       this.setState({
-        nameContainer: textContainer('Nombre', this.state.name),
         availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
         priceContainer: textContainer('Precio', this.state.price),
         buttonsState: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
@@ -112,8 +107,6 @@ class Item extends React.Component {
   cancelUpdate() {
     //Apart from update the containers, I clean the values of the inputs, and return to the actual states 
     this.setState({
-      nameContainer: textContainer('Nombre', this.state.name),
-      inputName: this.state.name,
       availableQuantityContainer: textContainer('Cantidad disponible', this.state.availableQuantity),
       inputAvailableQuantity: this.state.availableQuantity,
       priceContainer: textContainer('Precio', this.state.price),
@@ -136,7 +129,7 @@ class Item extends React.Component {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        productName: this.state.name,
+        productName: this.props.name,
         photoPath: this.state.src
       })
     });
@@ -155,7 +148,7 @@ class Item extends React.Component {
   render() {
     let item = /*#__PURE__*/React.createElement("li", {
       className: "list-group-item"
-    }, " ", /*#__PURE__*/React.createElement("div", null, this.state.nameContainer, this.state.availableQuantityContainer, this.state.priceContainer, /*#__PURE__*/React.createElement("img", {
+    }, " ", /*#__PURE__*/React.createElement("div", null, this.props.name, this.state.availableQuantityContainer, this.state.priceContainer, /*#__PURE__*/React.createElement("img", {
       src: this.state.src,
       alt: "product photo"
     }), this.state.buttonsState), " ");

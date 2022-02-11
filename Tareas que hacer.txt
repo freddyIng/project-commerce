@@ -1,15 +1,10 @@
 -La aplicacion funciona mal en el navegador del telefono de mi mama... Eso quiere decir que necesito usar babel para transpilar
 a ES5, no solo mi codigo propio, si no tambien el codigo javascript de bootstrap y react?
 
--Agregar configuracion de la cuenta (tanto para el administrador como para el cliente). El administrador podra cambiar su nombre
-de usuario y contraseña. El cliente su correo y contraseña.
-
 -En la funcionalidad de inventario, al momento de agregar el producto, el input de la foto/input file no cambia, es decir,
 no se resetea. A pesar de que no es nada de lo que deba preocuparme, me gustaria solucionar esto.
 
 -Mejorar el manejo de errores.
-
--Aplicar winston para el log de errores
 
 -Testear la aplicacion (unitario e integral)
 

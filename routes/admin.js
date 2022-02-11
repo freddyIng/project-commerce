@@ -163,7 +163,6 @@ router.delete('/delete-product', async (req, res)=>{
     await fs.unlink('.'+'/commerce-photos'+req.body.photoPath);
     res.json({result: 'El producto ha sido eliminado!'});
     } catch(err){
-      console.log(err)
       res.json({result: 'Ha ocurrido un error. Intentelo de nuevo!'});
     }
   } else{
