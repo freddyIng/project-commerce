@@ -20,13 +20,17 @@ router.get('/signin', (req, res)=>{
 
 router.post('/signin',
   body('dni').isNumeric().isLength({min: 6, max: 8}).trim().escape(),
-  body('password').isLength({min: 6, max: 20}).trim().escape()
+  body('password').isLength({min: 6, max: 20}).trim().escape(),
+  body('firstPetName').isLength({min: 3, max: 20}).trim().escape(),
+  body('motherLastName').isLength({min: 3, max: 20}).trim().escape(),
+  body('favoriteDessert').isLength({min: 3, max: 20}).trim().escape()
   , async (req, res)=>{
   const errors=validationResult(req);
   if (!errors.isEmpty()){
     //return res.status(400).json({ errors: errors.array() });
     let message='Datos invalidos. El numero de cedula debe tener minimo 6 numeros y maximo 8.';
     message+='A su vez, la contraseña debe tener minimo 6 caracteres y maximo 20.';
+    message+='En cuanto a las preguntas de seguridad, cada una debe tener minimo 3 caracteres y 20'
     return res.send(message);
   }
   bcrypt.hash(req.body.password, saltRounds, async (err, hash)=>{
@@ -34,7 +38,10 @@ router.post('/signin',
     try{
       await customer.create({
         dni: req.body.dni,
-        password: hash, 
+        password: hash,
+        firstPetName: req.body.firstPetName,
+        motherLastName: req.body.motherLastName,
+        favoriteDessert: req.body.favoriteDessert 
       });
       res.send('The has registrado con exito! Ahora puedes iniciar sesion para empezar a usar nuestro servicio.');
     } catch(err){
@@ -165,6 +172,47 @@ router.get('/purchases/data', async (req, res)=>{
 
 router.get('/dni', (req, res)=>{
   res.json({dni: req.user});
+});
+
+router.get('/reset-password', (req, res)=>{
+  res.sendFile(viewPath+'/customer/reset-password.html');
+});
+
+router.put('/reset-password',
+  body('dni').isNumeric().trim().escape(),
+  body('password').isLength({min: 6, max: 20}).trim().escape(),
+  //Trim and escape the response, because can contain whitespace, etc
+  body('firstPetName').trim().escape(),
+  body('motherLastName').trim().escape(),
+  body('favoriteDessert').trim().escape(),
+  async (req, res)=>{
+    const errors=validationResult(req);
+    if (!errors.isEmpty()){
+      return res.json({message: 'Data error'});
+    }
+    try{
+      const data=await customer.findAll({
+        where: {
+          dni: req.body.dni
+        }
+      });
+      if (data[0].firstPetName===req.body.firstPetName && data[0].motherLastName===req.body.motherLastName && data[0].favoriteDessert===req.body.favoriteDessert){
+        bcrypt.hash(req.body.password, saltRounds, async (err, hash)=>{
+          if (err) return res.json({message: 'Error'});
+          await customer.update({password: hash}, {
+            where: {
+              dni: req.body.dni
+            }
+          });
+          res.json({message: 'Ok'});
+        });
+      } else{
+        res.json({message: 'Not ok'});
+      }
+    } catch(err){
+      console.log(err);
+      res.json({message: 'Error'});
+    }
 });
 
 module.exports=router;

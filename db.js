@@ -54,6 +54,16 @@ Customer.init({
   },
   password: {
     type: DataTypes.STRING
+  },
+  //answers to security questions
+  firstPetName: {
+  	type: DataTypes.STRING
+  },
+  motherLastName: {
+  	type: DataTypes.STRING
+  },
+  favoriteDessert: {
+  	type: DataTypes.STRING
   }
 }, {
      timestamps: false,

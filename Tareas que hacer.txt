@@ -1,13 +1,6 @@
 -La aplicacion funciona mal en el navegador del telefono de mi mama... Eso quiere decir que necesito usar babel para transpilar
 a ES5, no solo mi codigo propio, si no tambien el codigo javascript de bootstrap y react?
 
--En vez de cedula, pedir un nombre de usuario, con minimo 6 y maximo 15 caracteres
-
--Falta la verificacion por correo electronico de clientes. Usando 
-nodemailer y una cuenta de correo del negocio (como outlook?) o usar un servicio como sendgrid. Realmente hago esto
-asi debido a la funcionalidad de recuperacion de contraseña, ya que enviarla via correo al usuario es el estandar.
-Pero... aun asi, podria implementar otro metodo, algo asi como preguntas aleatorias de seguridad, etc.
-
 -Agregar configuracion de la cuenta (tanto para el administrador como para el cliente). El administrador podra cambiar su nombre
 de usuario y contraseña. El cliente su correo y contraseña.
 
