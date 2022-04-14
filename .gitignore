@@ -1,2 +1,6 @@
+.env
+registration-of-request.log
+error.log
 node_modules/
 images/
+commerce-photos/

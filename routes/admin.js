@@ -70,9 +70,7 @@ router.put('/edit-payment-information', async (req, res)=>{
   if (req.cookies.admin_session===cookieValue){
     try{
       await admin.update({paymentInformation: req.body},
-      	{where: {
-          username: 'cyber'
-        }
+      	{where: {}
       });
       res.json({result: 'Sucessfull operation'});
     } catch(err){
