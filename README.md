@@ -13,6 +13,11 @@ DB_PASSWORD=yourPassword
 
 DB_HOST=localhost
 
+ROUTE_KEY_TO_LOGIN=key
+
+-Also, create two files for request and error logging. The names of the files 
+are "registration-of-request.log" and "error.log".
+
 -Then, create the directory "commerce-photos" in the root directory of the application, and, inside of that directory, create a subdirectory 
 called "product-photos"
 

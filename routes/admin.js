@@ -17,7 +17,8 @@ Supongo que podria trasladar la foto desde ese directorio al subdirectorio dle n
 quiere decir que el administrador todavia no ha subido ningun producto, y por lo tanto, tendra que crearse por primera vez.*/
 const fs=require('fs').promises;
 
-router.get('/', (req, res)=>{
+require('dotenv').config(); //just for the key to login
+router.get(`/${process.env.ROUTE_KEY_TO_LOGIN}`, (req, res)=>{
   res.sendFile(viewPath+'/admin/login.html');
 });
 
