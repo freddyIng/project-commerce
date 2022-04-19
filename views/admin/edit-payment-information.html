@@ -99,11 +99,11 @@
      rifCheckLabel.className='form-check-label'
      dniOrRifInput.className='form-control';
      numberAccountInput.className='form-control';
+     dniOrRifColumn.appendChild(dniOrRifInput);
      dniOrRifColumn.appendChild(dniCheck);
      dniOrRifColumn.appendChild(dniCheckLabel);
      dniOrRifColumn.appendChild(rifCheck);
      dniOrRifColumn.appendChild(rifCheckLabel);
-     dniOrRifColumn.appendChild(dniOrRifInput);
      numberAccountColumn.appendChild(numberAccountInput);
      row.appendChild(headColumn);
      row.appendChild(dniOrRifColumn);
@@ -116,8 +116,8 @@
     for (let i=0; i<banks.length; i++){
       let bankRowChilds=bankRows[i].children;
       let bankIdColumnOfActualRow=bankRowChilds[1], bankNumberAccountColumnOfActualRow=bankRowChilds[2];
-      let dniValue=bankIdColumnOfActualRow.children[0].checked, rifValue=bankIdColumnOfActualRow.children[2].checked
-      let idValueActualBankColumn=bankIdColumnOfActualRow.children[4].value;
+      let dniValue=bankIdColumnOfActualRow.children[1].checked, rifValue=bankIdColumnOfActualRow.children[3].checked
+      let idValueActualBankColumn=bankIdColumnOfActualRow.children[0].value; //4
       let numberBankAccount=bankNumberAccountColumnOfActualRow.children[0].value;
       let dniOrRifValue=dniValue? 'V' : rifValue? 'G' : '';
       data.push({ name: banks[i], id: dniOrRifValue+'-'+idValueActualBankColumn, accountNumber: numberBankAccount });
@@ -147,8 +147,8 @@
       if (response.result[0].paymentInformation.length>0){
       	response.result[0].paymentInformation.forEach(bank=>{
           let actualBankRow=document.getElementById(bank.name);
-          bank.id[0]==='V'? actualBankRow.children[1].children[0].checked=true : actualBankRow.children[1].children[2].checked=true;
-          actualBankRow.children[1].children[4].value=bank.id.replace(bank.id[0]+bank.id[1], '');
+          bank.id[0]==='V'? actualBankRow.children[1].children[1].checked=true : actualBankRow.children[1].children[3].checked=true;
+          actualBankRow.children[1].children[0].value=bank.id.replace(bank.id[0]+bank.id[1], '');
           actualBankRow.children[2].children[0].value=bank.accountNumber;
       	});
       }
